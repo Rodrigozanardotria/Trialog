@@ -266,6 +266,7 @@
 
   .alert-card { background: var(--vermelho-bg); border: 1px solid var(--vermelho-border); border-radius: 8px; padding: 11px 13px; }
   .alert-card .plate { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 14px; color: var(--vermelho-ink); }
+  .alert-card .when-tag { font-family: "IBM Plex Sans", sans-serif; font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg-elevated); border: 1px solid var(--vermelho-border); border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
   .alert-card .who { font-size: 13px; color: var(--ink); margin-top: 2px; }
   .alert-card .why { font-size: 12.5px; color: var(--vermelho-ink); margin-top: 6px; font-weight: 500; }
 
@@ -283,7 +284,7 @@
 
   .table-scroll { overflow-x: auto; padding: 14px 8px 8px; }
 
-  table { width: 100%; border-collapse: collapse; min-width: 860px; }
+  table { width: 100%; border-collapse: collapse; min-width: 1020px; }
 
   thead th {
     text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
@@ -330,6 +331,13 @@
   select.status-select.st-andamento { background-color: var(--amarelo-bg); color: var(--amarelo-ink); border-color: var(--amarelo-border); }
   select.status-select.st-nao { background-color: var(--vermelho-bg); color: var(--vermelho-ink); border-color: var(--vermelho-border); }
   select.status-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .carregado-em-input {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 6px; width: 168px; max-width: 100%;
+  }
+  .carregado-em-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
 
   .obs { color: var(--ink-muted); font-size: 12.5px; max-width: 190px; }
 
@@ -378,6 +386,17 @@
   .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
   .field input[list] { font-family: "IBM Plex Sans", sans-serif; }
   .field.placa input { font-family: "IBM Plex Mono", monospace; text-transform: uppercase; }
+
+  .checkbox-field {
+    background: var(--vermelho-bg); border: 1px solid var(--vermelho-border);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .checkbox-label { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; font-weight: 600; color: var(--vermelho-ink); cursor: pointer; }
+  .checkbox-label input[type="checkbox"] { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--vermelho); flex: none; cursor: pointer; }
+  .checkbox-hint { font-size: 11.5px; color: var(--vermelho-ink); opacity: 0.85; margin-top: 6px; margin-left: 25px; font-weight: 400; }
+  .field-hint { font-size: 11.5px; color: var(--ink-faint); font-weight: 400; margin-top: 2px; }
+
+  .form-grid.is-em-contratacao .field-if-contratado { display: none; }
 
   .form-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
   .btn-primary {
@@ -462,6 +481,7 @@
               <th>Motorista</th>
               <th>Placa</th>
               <th>Carregado</th>
+              <th>Carregado em</th>
               <th>Liberação GR</th>
               <th>Observação</th>
               <th></th>
@@ -493,7 +513,15 @@
 
       <form id="vehicle-form">
         <input type="hidden" id="f-id">
-        <div class="form-grid">
+        <div class="form-grid" id="form-grid">
+          <div class="field span-2 checkbox-field">
+            <label class="checkbox-label" for="f-em-contratacao">
+              <input type="checkbox" id="f-em-contratacao">
+              <span>Marcar como "em contratação" (esconde os campos de veículo abaixo)</span>
+            </label>
+            <div class="checkbox-hint">Dica: se não marcar essa opção, basta deixar Motorista e Placa em branco — o cockpit já entende que a rota ainda está em aberto.</div>
+          </div>
+
           <div class="field">
             <label for="f-data">Data</label>
             <input type="date" id="f-data" required>
@@ -515,36 +543,35 @@
             <input type="text" id="f-rota" placeholder="Ex.: RIO">
           </div>
 
-          <div class="field">
+          <div class="field field-if-contratado">
             <label for="f-tipologia">Tipologia do veículo</label>
             <input type="text" id="f-tipologia" list="tipologias-list" placeholder="Ex.: Truck">
             <datalist id="tipologias-list">
               <option value="VUC"><option value="3/4"><option value="Toco"><option value="Truck"><option value="Carreta"><option value="Bitrem"><option value="Rodotrem">
             </datalist>
           </div>
-          <div class="field placa">
+          <div class="field placa field-if-contratado">
             <label for="f-placa">Placa</label>
-            <input type="text" id="f-placa" required placeholder="ABC 1234">
+            <input type="text" id="f-placa" placeholder="ABC 1234">
           </div>
 
-          <div class="field">
+          <div class="field field-if-contratado">
             <label for="f-motorista">Motorista</label>
-            <input type="text" id="f-motorista" required placeholder="Nome do motorista">
+            <input type="text" id="f-motorista" placeholder="Nome do motorista">
           </div>
-          <div class="field">
+          <div class="field field-if-contratado">
             <label for="f-telefone">Telefone</label>
             <input type="tel" id="f-telefone" placeholder="(xx) xxxxx-xxxx">
           </div>
 
-          <div class="field">
+          <div class="field field-if-contratado">
             <label for="f-carregado">Carregado</label>
             <select id="f-carregado">
               <option value="nao">Não</option>
               <option value="andamento">Em andamento</option>
-              <option value="sim">Sim</option>
             </select>
           </div>
-          <div class="field">
+          <div class="field field-if-contratado">
             <label for="f-gr">Liberação GR</label>
             <select id="f-gr">
               <option value="nao">Não</option>
@@ -553,9 +580,15 @@
             </select>
           </div>
 
+          <div class="field field-if-contratado span-2">
+            <label for="f-carregado-em">Data/hora real do carregamento</label>
+            <input type="datetime-local" id="f-carregado-em">
+            <div class="field-hint">Preencher aqui já marca "Carregado" como Sim (verde) automaticamente.</div>
+          </div>
+
           <div class="field span-2">
             <label for="f-obs">Observação</label>
-            <input type="text" id="f-obs" placeholder="Ex.: Falta liberação GR / Sem veículo">
+            <input type="text" id="f-obs" placeholder="Ex.: Falta liberação GR / Sem veículo / Sem motorista disponível">
           </div>
         </div>
 
@@ -658,7 +691,9 @@
 
   // ---------- Form ----------
   var form = document.getElementById("vehicle-form");
+  var formGrid = document.getElementById("form-grid");
   var fId = document.getElementById("f-id");
+  var fEmContratacao = document.getElementById("f-em-contratacao");
   var fData = document.getElementById("f-data");
   var fHora = document.getElementById("f-hora");
   var fCliente = document.getElementById("f-cliente");
@@ -668,6 +703,7 @@
   var fMotorista = document.getElementById("f-motorista");
   var fTelefone = document.getElementById("f-telefone");
   var fCarregado = document.getElementById("f-carregado");
+  var fCarregadoEm = document.getElementById("f-carregado-em");
   var fGr = document.getElementById("f-gr");
   var fObs = document.getElementById("f-obs");
   var formTitle = document.getElementById("form-title");
@@ -675,12 +711,21 @@
   var formMsg = document.getElementById("form-msg");
   var btnCancelEdit = document.getElementById("btn-cancel-edit");
 
+  function updateContratacaoUI() {
+    var checked = fEmContratacao.checked;
+    formGrid.classList.toggle("is-em-contratacao", checked);
+  }
+  fEmContratacao.addEventListener("change", updateContratacaoUI);
+
   function startNewEntry() {
     fId.value = "";
     form.reset();
     fData.value = currentDate;
     fCarregado.value = "nao";
+    fCarregadoEm.value = "";
     fGr.value = "nao";
+    fEmContratacao.checked = false;
+    updateContratacaoUI();
     formTitle.textContent = "Cadastrar veículo";
     formSub.textContent = "Preencha os dados da programação — sem precisar subir planilha.";
     btnCancelEdit.style.display = "none";
@@ -697,11 +742,14 @@
     fPlaca.value = doc.placa || "";
     fMotorista.value = doc.motorista || "";
     fTelefone.value = doc.telefone || "";
-    fCarregado.value = doc.carregado || "nao";
+    fCarregado.value = (doc.carregado === "andamento") ? "andamento" : "nao";
+    fCarregadoEm.value = doc.carregadoEm || "";
     fGr.value = doc.liberacaoGR || "nao";
     fObs.value = doc.observacao || "";
+    fEmContratacao.checked = !!doc.emContratacao;
+    updateContratacaoUI();
     formTitle.textContent = "Editar veículo";
-    formSub.textContent = "Placa " + (doc.placa || "") + " · " + (doc.cliente || "");
+    formSub.textContent = (doc.emContratacao ? "Em contratação" : "Placa " + (doc.placa || "")) + " · " + (doc.cliente || "");
     btnCancelEdit.style.display = "inline-flex";
     formMsg.textContent = "";
     activateTab("form");
@@ -713,17 +761,26 @@
     ev.preventDefault();
     if (!db) { showBanner("Sem conexão com o banco de dados agora. Verifique sua internet e tente de novo.", true); return; }
 
+    var placaVal = fPlaca.value.trim().toUpperCase();
+    var motoristaVal = fMotorista.value.trim();
+    // Em contratação = marcado manualmente, OU nenhum motorista/placa informado ainda.
+    var emContratacao = fEmContratacao.checked || (!placaVal && !motoristaVal);
+    var carregadoEmVal = emContratacao ? "" : fCarregadoEm.value;
+    // "Carregado" só vira Sim quando a data/hora real do carregamento é preenchida.
+    var carregadoVal = emContratacao ? "nao" : (carregadoEmVal ? "sim" : fCarregado.value);
     var payload = {
       data: fData.value,
       hora: fHora.value,
       cliente: fCliente.value.trim(),
       rota: fRota.value.trim(),
       tipologia: fTipologia.value.trim(),
-      placa: fPlaca.value.trim().toUpperCase(),
-      motorista: fMotorista.value.trim(),
+      placa: placaVal,
+      motorista: motoristaVal,
       telefone: fTelefone.value.trim(),
-      carregado: fCarregado.value,
-      liberacaoGR: fGr.value,
+      carregado: carregadoVal,
+      carregadoEm: carregadoEmVal,
+      liberacaoGR: emContratacao ? "nao" : fGr.value,
+      emContratacao: emContratacao,
       observacao: fObs.value.trim(),
       updatedAt: new Date().toISOString()
     };
@@ -778,10 +835,10 @@
     });
   }
 
-  function renderStatusSelect(id, field, value) {
+  function renderStatusSelect(id, field, value, options) {
     var sel = document.createElement("select");
     sel.className = "status-select st-" + value;
-    ["nao", "andamento", "sim"].forEach(function (v) {
+    (options || ["nao", "andamento", "sim"]).forEach(function (v) {
       var opt = document.createElement("option");
       opt.value = v; opt.textContent = STATUS_LABEL[v];
       if (v === value) opt.selected = true;
@@ -794,13 +851,76 @@
     return sel;
   }
 
+  function renderCarregadoEmInput(d) {
+    var wrap = document.createElement("div");
+    wrap.className = "carregado-em-cell";
+    var inp = document.createElement("input");
+    inp.type = "datetime-local";
+    inp.className = "carregado-em-input";
+    inp.value = d.carregadoEm || "";
+    inp.addEventListener("change", function () {
+      var val = inp.value;
+      var update = { carregadoEm: val, carregado: val ? "sim" : "andamento", updatedAt: new Date().toISOString() };
+      db.ref("veiculos/" + d.id).update(update).catch(function (err) {
+        showBanner("Não deu pra salvar o horário real (" + (err && err.code ? err.code : "erro") + ").", true);
+      });
+    });
+    wrap.appendChild(inp);
+    return wrap;
+  }
+
+  function effectiveSeverity(d) {
+    if (d.emContratacao) return "nao";
+    return worst(d.carregado || "nao", d.liberacaoGR || "nao");
+  }
+
+  function renderAttention(allDocs) {
+    var critDocs = allDocs.filter(function (d) { return effectiveSeverity(d) === "nao"; });
+    critDocs.sort(function (a, b) {
+      return ((a.data || "") + " " + (a.hora || "")).localeCompare((b.data || "") + " " + (b.hora || ""));
+    });
+    attentionSlot.innerHTML = "";
+    if (critDocs.length) {
+      var box = document.createElement("div");
+      box.className = "attention";
+      var title = document.createElement("p");
+      title.className = "section-title";
+      title.innerHTML = "⛔ Precisa de você agora <span class=\"count-badge\">" + critDocs.length + (critDocs.length === 1 ? " pendência" : " pendências") + "</span>";
+      box.appendChild(title);
+      var cards = document.createElement("div");
+      cards.className = "alert-cards";
+      critDocs.forEach(function (d) {
+        var card = document.createElement("div");
+        card.className = "alert-card";
+        var why = d.emContratacao
+          ? (d.observacao || "Veículo em contratação")
+          : (d.observacao || (d.carregado === "nao" ? "Carregamento pendente" : "Liberação GR pendente"));
+        var plateLine = d.emContratacao ? "Em contratação" : (d.placa || "Sem placa") + (d.tipologia ? " · " + esc(d.tipologia) : "");
+        var whenLine = esc(formatDataBr(d.data)) + (d.hora ? " · " + esc(d.hora) : "");
+        var whoLine = (d.emContratacao ? "A contratar" : esc(d.motorista)) + " · " + esc(d.cliente) + (d.rota ? " → " + esc(d.rota) : "");
+        card.innerHTML =
+          "<div class=\"plate\">" + (d.emContratacao ? plateLine : esc(plateLine)) + " <span class=\"when-tag\">" + whenLine + "</span></div>" +
+          "<div class=\"who\">" + whoLine + "</div>" +
+          "<div class=\"why\">" + esc(why) + "</div>";
+        cards.appendChild(card);
+      });
+      box.appendChild(cards);
+      attentionSlot.appendChild(box);
+    } else {
+      var okBox = document.createElement("div");
+      okBox.className = "attention-empty";
+      okBox.textContent = "✅ Nenhuma pendência em aberto — em nenhuma data.";
+      attentionSlot.appendChild(okBox);
+    }
+  }
+
   function render(docs) {
     currentDocs = docs.slice().sort(function (a, b) { return (a.hora || "").localeCompare(b.hora || ""); });
 
     var total = currentDocs.length;
     var ok = 0, warn = 0, crit = 0;
     currentDocs.forEach(function (d) {
-      var s = worst(d.carregado || "nao", d.liberacaoGR || "nao");
+      var s = effectiveSeverity(d);
       if (s === "sim") ok++; else if (s === "andamento") warn++; else crit++;
     });
     document.getElementById("kpi-total").textContent = total;
@@ -809,42 +929,11 @@
     document.getElementById("kpi-crit").textContent = crit;
     boardCount.textContent = total + (total === 1 ? " veículo" : " veículos") + " · ordenado por horário";
 
-    // attention
-    var critDocs = currentDocs.filter(function (d) { return worst(d.carregado || "nao", d.liberacaoGR || "nao") === "nao"; });
-    attentionSlot.innerHTML = "";
-    if (critDocs.length) {
-      var box = document.createElement("div");
-      box.className = "attention";
-      var title = document.createElement("p");
-      title.className = "section-title";
-      title.innerHTML = "⛔ Precisa de você agora <span class=\"count-badge\">" + critDocs.length + (critDocs.length === 1 ? " veículo" : " veículos") + "</span>";
-      box.appendChild(title);
-      var cards = document.createElement("div");
-      cards.className = "alert-cards";
-      critDocs.forEach(function (d) {
-        var card = document.createElement("div");
-        card.className = "alert-card";
-        var why = d.observacao || (d.carregado === "nao" ? "Carregamento pendente" : "Liberação GR pendente");
-        card.innerHTML =
-          "<div class=\"plate\">" + esc(d.placa) + (d.tipologia ? " · " + esc(d.tipologia) : "") + "</div>" +
-          "<div class=\"who\">" + esc(d.motorista) + " · " + esc(d.cliente) + (d.rota ? " → " + esc(d.rota) : "") + (d.hora ? " · " + esc(d.hora) : "") + "</div>" +
-          "<div class=\"why\">" + esc(why) + "</div>";
-        cards.appendChild(card);
-      });
-      box.appendChild(cards);
-      attentionSlot.appendChild(box);
-    } else if (total > 0) {
-      var okBox = document.createElement("div");
-      okBox.className = "attention-empty";
-      okBox.textContent = "✅ Nenhuma pendência sem solução nesta data.";
-      attentionSlot.appendChild(okBox);
-    }
-
     // table
     boardBody.innerHTML = "";
     boardEmpty.style.display = total === 0 ? "block" : "none";
     currentDocs.forEach(function (d) {
-      var sev = worst(d.carregado || "nao", d.liberacaoGR || "nao");
+      var sev = effectiveSeverity(d);
       var tr = document.createElement("tr");
       tr.className = sev === "sim" ? "row-ok" : sev === "andamento" ? "row-warn" : "row-crit";
 
@@ -861,17 +950,39 @@
       tr.appendChild(tdTipo);
 
       var tdMot = document.createElement("td");
-      tdMot.innerHTML = "<div class=\"motorista-name\">" + esc(d.motorista) + "</div>" + (d.telefone ? "<div class=\"motorista-fone\">" + esc(d.telefone) + "</div>" : "");
+      if (d.emContratacao) {
+        tdMot.innerHTML = "<span class=\"semaforo crit\">Em contratação</span>";
+      } else {
+        tdMot.innerHTML = "<div class=\"motorista-name\">" + esc(d.motorista) + "</div>" + (d.telefone ? "<div class=\"motorista-fone\">" + esc(d.telefone) + "</div>" : "");
+      }
       tr.appendChild(tdMot);
 
-      var tdPlaca = document.createElement("td"); tdPlaca.className = "placa"; tdPlaca.textContent = d.placa || "—"; tr.appendChild(tdPlaca);
+      var tdPlaca = document.createElement("td"); tdPlaca.className = "placa"; tdPlaca.textContent = d.emContratacao ? "—" : (d.placa || "—"); tr.appendChild(tdPlaca);
 
       var tdCarregado = document.createElement("td");
-      tdCarregado.appendChild(renderStatusSelect(d.id, "carregado", d.carregado || "nao"));
+      if (d.emContratacao) {
+        tdCarregado.innerHTML = "<span class=\"semaforo crit\">Em contratação</span>";
+      } else if (d.carregadoEm) {
+        tdCarregado.innerHTML = "<span class=\"semaforo ok\">Sim</span>";
+      } else {
+        tdCarregado.appendChild(renderStatusSelect(d.id, "carregado", d.carregado || "nao", ["nao", "andamento"]));
+      }
       tr.appendChild(tdCarregado);
 
+      var tdCarregadoEm = document.createElement("td");
+      if (d.emContratacao) {
+        tdCarregadoEm.innerHTML = "<span class=\"rota\">—</span>";
+      } else {
+        tdCarregadoEm.appendChild(renderCarregadoEmInput(d));
+      }
+      tr.appendChild(tdCarregadoEm);
+
       var tdGr = document.createElement("td");
-      tdGr.appendChild(renderStatusSelect(d.id, "liberacaoGR", d.liberacaoGR || "nao"));
+      if (d.emContratacao) {
+        tdGr.innerHTML = "<span class=\"rota\">—</span>";
+      } else {
+        tdGr.appendChild(renderStatusSelect(d.id, "liberacaoGR", d.liberacaoGR || "nao"));
+      }
       tr.appendChild(tdGr);
 
       var tdObs = document.createElement("td"); tdObs.className = "obs"; tdObs.textContent = d.observacao || "—"; tr.appendChild(tdObs);
@@ -936,10 +1047,24 @@
     unsubscribe = function () { ref.off("value", handler); };
   }
 
+  function subscribeGlobalAttention() {
+    if (!db) return;
+    db.ref("veiculos").on("value", function (snapshot) {
+      var allDocs = [];
+      snapshot.forEach(function (child) {
+        allDocs.push(Object.assign({ id: child.key }, child.val()));
+      });
+      renderAttention(allDocs);
+    }, function (err) {
+      showBanner("Conexão com os dados interrompida (" + (err && err.code ? err.code : "erro") + "). Recarregue a página.", true);
+    });
+  }
+
   fData.value = currentDate;
 
   if (db) {
     subscribeDate();
+    subscribeGlobalAttention();
   } else {
     showBanner("Não foi possível conectar ao banco de dados. Verifique sua internet e recarregue a página.", true);
   }
