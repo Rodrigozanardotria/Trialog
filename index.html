@@ -33,6 +33,10 @@
     --azul-ink: #1544a0;
     --azul-bg: #e2ecfc;
     --azul-border: #adc6f2;
+    --roxo: #7c3aed;
+    --roxo-ink: #5b21b6;
+    --roxo-bg: #ede4fd;
+    --roxo-border: #cbb2f7;
     --vermelho: #c6333a;
     --vermelho-ink: #8f1f24;
     --vermelho-bg: #fbe4e5;
@@ -69,6 +73,10 @@
       --azul-ink: #cfe1ff;
       --azul-bg: rgba(91, 157, 255, 0.14);
       --azul-border: rgba(91, 157, 255, 0.38);
+      --roxo: #b18cff;
+      --roxo-ink: #e3d6ff;
+      --roxo-bg: rgba(177, 140, 255, 0.16);
+      --roxo-border: rgba(177, 140, 255, 0.4);
       --vermelho: #ff6b70;
       --vermelho-ink: #ffc3c5;
       --vermelho-bg: rgba(255, 107, 112, 0.14);
@@ -105,6 +113,10 @@
     --azul-ink: #cfe1ff;
     --azul-bg: rgba(91, 157, 255, 0.14);
     --azul-border: rgba(91, 157, 255, 0.38);
+    --roxo: #b18cff;
+    --roxo-ink: #e3d6ff;
+    --roxo-bg: rgba(177, 140, 255, 0.16);
+    --roxo-border: rgba(177, 140, 255, 0.4);
     --vermelho: #ff6b70;
     --vermelho-ink: #ffc3c5;
     --vermelho-bg: rgba(255, 107, 112, 0.14);
@@ -212,6 +224,11 @@
     padding: 8px 16px; border-radius: 7px; cursor: pointer;
   }
   .tab-btn.active { background: var(--bg-elevated); color: var(--ink); box-shadow: var(--shadow); }
+  .tab-btn .count-badge {
+    font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 700;
+    background: var(--vermelho-bg); color: var(--vermelho-ink); border: 1px solid var(--vermelho-border);
+    padding: 0 7px; border-radius: 999px; margin-left: 6px;
+  }
   .tab-panel { display: none; }
   .tab-panel.active { display: flex; flex-direction: column; gap: 22px; }
 
@@ -241,25 +258,11 @@
 
   .kpi-label { margin-top: 4px; font-size: 12.5px; color: var(--ink-muted); font-weight: 500; }
 
-  /* ---------- Attention section ---------- */
-  .attention {
-    background: var(--bg-elevated);
-    border: 1px solid var(--vermelho-border);
-    border-radius: 12px;
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-  }
-
-  .attention-empty {
-    background: var(--bg-elevated);
-    border: 1px solid var(--verde-border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    box-shadow: var(--shadow);
-    color: var(--verde-ink);
-    font-weight: 500;
-    display: flex; align-items: center; gap: 10px;
-  }
+  /* Linhas de KPI com 5 cards fixos por linha (Mesa de Frete) — não deixa quebrar pra linha de baixo */
+  .kpis.kpis-5 { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .kpis-5 .kpi { padding: 10px 10px; }
+  .kpis-5 .kpi-num { font-size: 23px; }
+  .kpis-5 .kpi-label { font-size: 10.5px; line-height: 1.25; }
 
   .section-title {
     font-family: "Barlow Condensed", sans-serif;
@@ -267,21 +270,6 @@
     display: flex; align-items: center; gap: 8px;
     margin: 0 0 12px;
   }
-
-  .section-title .count-badge {
-    font-family: "IBM Plex Mono", monospace; font-size: 12px;
-    background: var(--vermelho-bg); color: var(--vermelho-ink);
-    border: 1px solid var(--vermelho-border);
-    padding: 1px 8px; border-radius: 999px;
-  }
-
-  .alert-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
-
-  .alert-card { background: var(--vermelho-bg); border: 1px solid var(--vermelho-border); border-radius: 8px; padding: 11px 13px; }
-  .alert-card .plate { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 14px; color: var(--vermelho-ink); }
-  .alert-card .when-tag { font-family: "IBM Plex Sans", sans-serif; font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; background: var(--bg-elevated); border: 1px solid var(--vermelho-border); border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
-  .alert-card .who { font-size: 13px; color: var(--ink); margin-top: 2px; }
-  .alert-card .why { font-size: 12.5px; color: var(--vermelho-ink); margin-top: 6px; font-weight: 500; }
 
   /* ---------- Board / table ---------- */
   .board { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
@@ -296,6 +284,10 @@
   .btn-new:hover { filter: brightness(1.08); }
 
   .table-scroll { overflow-x: auto; padding: 14px 8px 8px; }
+
+  /* Barra de rolagem horizontal espelhada no topo da tabela, sincronizada com a de baixo */
+  .table-scroll-top { overflow-x: auto; overflow-y: hidden; height: 16px; margin: 8px 20px 0; }
+  .table-scroll-top-inner { height: 1px; }
 
   table { width: 100%; border-collapse: collapse; min-width: 1020px; }
 
@@ -432,13 +424,6 @@
   }
 
   /* ---------- Torre de Controle (prevía offline) ---------- */
-  .demo-banner {
-    background: var(--accent-bg); border: 1px solid var(--brand-orange-light);
-    border-radius: 10px; padding: 13px 16px; font-size: 13px; color: var(--ink);
-    line-height: 1.5;
-  }
-  .demo-banner strong { color: var(--accent-ink); }
-
   .live-dot {
     display: inline-block; width: 8px; height: 8px; border-radius: 999px;
     background: var(--verde); margin-left: 6px; vertical-align: middle;
@@ -558,12 +543,141 @@
   }
   .rotas-diarias-empty { padding: 14px 4px; color: var(--ink-muted); font-size: 13px; }
 
+  .rotas-diarias-item .datas-field { display: flex; flex-direction: column; gap: 4px; flex: none; align-items: flex-start; }
+  .datas-btn {
+    font: inherit; font-size: 12px; padding: 6px 10px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--ink);
+  }
+  .datas-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .datas-summary { font-size: 11.5px; color: var(--ink-faint); }
+  .datas-summary.has-datas { color: var(--accent); font-weight: 600; }
+
+  /* Calendário multi-seleção (planejamento de rotas fixas) */
+  #calendar-modal-canvas { padding: 16px 18px; }
+  .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cal-nav-btn {
+    width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--ink);
+  }
+  .cal-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cal-nav-label { font-size: 14px; font-weight: 700; text-transform: capitalize; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+  .cal-weekday { text-align: center; font-size: 10.5px; text-transform: uppercase; color: var(--ink-muted); padding: 4px 0; }
+  .cal-day { text-align: center; font-size: 13px; padding: 8px 0; border-radius: 8px; cursor: pointer; border: 1px solid transparent; color: var(--ink); }
+  .cal-day:hover { border-color: var(--accent); }
+  .cal-day.is-blank { cursor: default; }
+  .cal-day.is-blank:hover { border-color: transparent; }
+  .cal-day.is-today { font-weight: 700; border-color: var(--border-strong); }
+  .cal-day.is-selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .cal-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .cal-count { font-size: 12px; color: var(--ink-muted); }
+
+  /* Torre de Controle — comentários (apenas time operacional) */
+  #torre-comment-modal-canvas { padding: 16px 18px; overflow-y: auto; flex: 1; }
+  .only-torre-op { display: none; }
+  body.role-operacao .only-torre-op,
+  body.role-administrador .only-torre-op,
+  body.role-supervisor .only-torre-op {
+    display: table-cell;
+  }
+
+  /* Mesa de Frete — demanda de contratação */
+  .only-mesa-admin { }
+  body.role-cliente .only-mesa-admin,
+  body.role-operacao .only-mesa-admin,
+  body.role-gr .only-mesa-admin {
+    display: none !important;
+  }
+  .mesa-atraso { color: var(--vermelho-ink); font-weight: 700; }
+  .mesa-inp {
+    font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: 7px; width: 100%; min-width: 100px; box-sizing: border-box;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--ink);
+  }
+  .mesa-inp.mesa-inp-placa { text-transform: uppercase; }
+  .mesa-row-msg { display: block; font-size: 11px; color: var(--vermelho-ink); margin-top: 4px; }
+  .mesa-contratar-btn { white-space: nowrap; }
+
+  /* Cadastrar rota fixa */
+  .rota-fixa-cadastro {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;
+    padding: 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-elevated);
+  }
+  .rota-fixa-cadastro .field { flex: 1 1 140px; min-width: 120px; }
+  .rota-fixa-cadastro .field.obs-field { flex: 2 1 260px; }
+  .rota-fixa-cadastro label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-muted); display: block; margin-bottom: 3px; }
+  .rota-fixa-cadastro input, .rota-fixa-cadastro textarea {
+    font: inherit; font-size: 13px; padding: 7px 9px; border-radius: 8px; width: 100%; box-sizing: border-box;
+    border: 1px solid var(--border); background: var(--bg); color: var(--ink);
+  }
+  .rota-fixa-cadastro textarea { resize: vertical; min-height: 38px; }
+  .rota-fixa-charcount { font-size: 10.5px; color: var(--ink-faint); margin-top: 2px; }
+  .rota-fixa-item-obs { font-size: 11.5px; color: var(--ink-muted); flex-basis: 100%; margin-top: 2px; }
+
   /* Resumo diario */
   .resumo-filtros { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
   .resumo-status { font-size: 12.5px; color: var(--ink-muted); }
   .resumo-export { display: flex; gap: 8px; flex-wrap: wrap; }
   .resumo-export button { font-size: 12px; padding: 6px 10px; }
   select#resumo-cliente:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  /* Farol de responsabilidade */
+  .farol-badge {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700;
+    padding: 4px 9px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent;
+  }
+  .farol-badge::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: currentColor; }
+  .farol-badge.farol-mesa { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+  .farol-badge.farol-gr { background: var(--amarelo-bg); color: var(--amarelo-ink); border-color: var(--amarelo-border); }
+  .farol-badge.farol-operacao { background: var(--azul-bg); color: var(--azul-ink); border-color: var(--azul-border); }
+  .farol-badge.farol-transito { background: var(--roxo-bg); color: var(--roxo-ink); border-color: var(--roxo-border); }
+  .farol-badge.farol-concluido { background: var(--verde-bg); color: var(--verde-ink); border-color: var(--verde-border); }
+
+  /* Colunas de comentario (Mesa de Frete / Operacao) */
+  .comment-cell { cursor: pointer; min-width: 140px; max-width: 180px; }
+  .comment-cell:hover { background: var(--bg-elevated); }
+  .comment-preview { font-size: 12px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .comment-preview.is-empty { color: var(--ink-faint); font-style: italic; }
+  .comment-meta { font-size: 10.5px; color: var(--ink-faint); margin-top: 2px; }
+  .comment-count { display: inline-block; font-size: 10px; font-weight: 700; background: var(--accent); color: #fff; border-radius: 999px; padding: 0 6px; margin-left: 4px; }
+
+  /* Modal de comentarios (reaproveita estrutura do map-modal) */
+  #comment-modal-canvas { padding: 16px 18px; overflow-y: auto; flex: 1; }
+  .comment-thread-item { border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .comment-thread-item:last-child { border-bottom: none; }
+  .comment-thread-item .txt { font-size: 13.5px; white-space: pre-wrap; }
+  .comment-thread-item .meta { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+  .comment-empty-state { color: var(--ink-faint); font-size: 13px; padding: 10px 0; }
+  .comment-input-row { border-top: 1px solid var(--border); padding: 12px 18px 16px; }
+  .comment-input-row textarea {
+    width: 100%; resize: vertical; min-height: 60px; font: inherit; font-size: 13px; padding: 8px 10px;
+    border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--ink); box-sizing: border-box;
+  }
+  .comment-input-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 10px; }
+  .comment-charcount { font-size: 11px; color: var(--ink-faint); }
+
+  /* Timeline (rastreio estilo Correios/Amazon) */
+  #timeline-modal-canvas { padding: 22px 24px; }
+  .timeline-track { display: flex; flex-direction: column; }
+  .timeline-step { display: flex; gap: 14px; position: relative; padding-bottom: 26px; }
+  .timeline-step:last-child { padding-bottom: 0; }
+  .timeline-step .dot-col { display: flex; flex-direction: column; align-items: center; }
+  .timeline-step .dot { width: 16px; height: 16px; border-radius: 999px; border: 3px solid var(--border-strong); background: var(--bg); flex: none; }
+  .timeline-step .line { width: 2px; flex: 1; background: var(--border-strong); margin-top: 2px; }
+  .timeline-step:last-child .line { display: none; }
+  .timeline-step.is-done .dot { background: var(--verde); border-color: var(--verde); }
+  .timeline-step.is-done .line { background: var(--verde); }
+  .timeline-step.is-current .dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
+  .timeline-step .info { padding-top: -1px; }
+  .timeline-step .label { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .timeline-step:not(.is-done):not(.is-current) .label { color: var(--ink-faint); }
+  .timeline-step .when { font-size: 12px; color: var(--ink-muted); margin-top: 1px; }
+
+  /* Nome do usuario (autoria dos comentarios, sem login real ainda) */
+  .autor-field { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); }
+  .autor-field input {
+    font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: 8px; width: 130px;
+    border: 1px solid var(--border); background: var(--bg-elevated); color: var(--ink);
+  }
     /* Torre de Controle - lamp/blink states (piscar literal ligado/desligado ate resolver) */
     .alert-lamp { display:inline-block; width:10px; height:10px; border-radius:999px; margin-right:6px; vertical-align:middle; background:#94a3b8; }
     .alert-lamp.azul { background:#2563eb; animation: blink-onoff 1s steps(1) infinite; }
@@ -627,8 +741,10 @@
     }
     body.role-cliente .only-edit,
     body.role-cliente .only-admin,
+    body.role-cliente .only-internal,
     body.role-operacao .only-admin,
-    body.role-mesa .only-admin {
+    body.role-mesa .only-admin,
+    body.role-gr .only-admin {
       display: none !important;
     }
     body.role-cliente .row-actions,
@@ -637,11 +753,86 @@
     body.role-cliente #rotas-diarias-confirmar {
       pointer-events: none; opacity: 0.5; filter: grayscale(0.2);
     }
+    body.role-cliente .row-actions .timeline-btn {
+      pointer-events: auto !important; opacity: 1 !important; filter: none !important;
+    }
     body.role-cliente .view-locked-note { display: inline-flex !important; }
     .view-locked-note {
       display: none; align-items:center; gap:6px; font-size:12px; color: var(--ink-muted);
       background: var(--bg-elevated); border: 1px dashed var(--border); border-radius: 8px; padding: 6px 10px; margin-bottom: 10px;
     }
+
+    /* Cliente só acessa a Torre de Controle */
+    body.role-cliente #tabbtn-cockpit,
+    body.role-cliente #tabbtn-resumo {
+      display: none !important;
+    }
+
+    /* Aba "Usuários" — só aparece pro dono do sistema logado */
+    .only-owner { display: none !important; }
+    body.is-owner .only-owner { display: inline-flex !important; }
+
+    /* ---------- Login (Firebase Authentication real) ---------- */
+    .login-gate {
+      position: fixed; inset: 0; z-index: 5000; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-gate.hidden { display: none; }
+    .login-card {
+      width: min(360px, 100%); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: var(--shadow); padding: 30px 26px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .login-brand { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+    .login-card h2 { margin: 0 0 6px; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 26px; }
+    .login-card .field label { font-size: 12px; color: var(--ink-muted); display: block; margin-bottom: 3px; }
+    .login-card .field { margin-bottom: 2px; }
+    .login-card input {
+      font: inherit; font-size: 14px; padding: 9px 11px; border-radius: 8px; width: 100%; box-sizing: border-box;
+      border: 1px solid var(--border); background: var(--bg); color: var(--ink);
+    }
+    .login-card .btn-primary { margin-top: 4px; }
+    .login-card .login-link {
+      align-self: flex-start; font-size: 11.5px; padding: 2px 0; border: none; background: none;
+      color: var(--accent-ink); text-decoration: underline; cursor: pointer;
+    }
+    .login-card .login-bootstrap { color: var(--ink-faint); }
+    .login-msg { font-size: 12.5px; min-height: 16px; }
+    .login-msg.err { color: var(--vermelho-ink); }
+    .login-msg.ok { color: var(--verde-ink); }
+
+    /* ---------- Permissões individuais de edição (além do perfil) ----------
+       Só os CONTROLES (select/input/button/textarea) ficam bloqueados — o conteúdo
+       (placa, motorista, status etc.) continua totalmente visível pra quem só pode olhar. */
+    .perm-checks { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--ink); }
+    .perm-checks label { display: flex; align-items: flex-start; gap: 7px; font-weight: 400; }
+    body:not(.has-perm-cockpit) .gate-cockpit select,
+    body:not(.has-perm-cockpit) .gate-cockpit input,
+    body:not(.has-perm-cockpit) .gate-cockpit button:not(.timeline-btn),
+    body:not(.has-perm-mesafrete) .gate-mesafrete select,
+    body:not(.has-perm-mesafrete) .gate-mesafrete input,
+    body:not(.has-perm-mesafrete) .gate-mesafrete button,
+    body:not(.has-perm-torre) .gate-torre,
+    body:not(.has-perm-rotasfixas) .gate-rotasfixas select,
+    body:not(.has-perm-rotasfixas) .gate-rotasfixas input,
+    body:not(.has-perm-rotasfixas) .gate-rotasfixas button,
+    body:not(.has-perm-rotasfixas) .gate-rotasfixas textarea {
+      pointer-events: none; opacity: 0.55; filter: grayscale(0.15);
+    }
+    body.role-administrador .gate-cockpit select, body.role-administrador .gate-cockpit input, body.role-administrador .gate-cockpit button,
+    body.role-supervisor .gate-cockpit select, body.role-supervisor .gate-cockpit input, body.role-supervisor .gate-cockpit button,
+    body.role-administrador .gate-mesafrete select, body.role-administrador .gate-mesafrete input, body.role-administrador .gate-mesafrete button,
+    body.role-supervisor .gate-mesafrete select, body.role-supervisor .gate-mesafrete input, body.role-supervisor .gate-mesafrete button,
+    body.role-administrador .gate-torre, body.role-supervisor .gate-torre,
+    body.role-administrador .gate-rotasfixas select, body.role-administrador .gate-rotasfixas input, body.role-administrador .gate-rotasfixas button, body.role-administrador .gate-rotasfixas textarea,
+    body.role-supervisor .gate-rotasfixas select, body.role-supervisor .gate-rotasfixas input, body.role-supervisor .gate-rotasfixas button, body.role-supervisor .gate-rotasfixas textarea {
+      pointer-events: auto !important; opacity: 1 !important; filter: none !important;
+    }
+
+    /* ---------- Usuários: validade e status ---------- */
+    .status-pill.st-inativo { background: var(--vermelho-bg); color: var(--vermelho-ink); border: 1px solid var(--vermelho-border); }
+    .validade-vencida { color: var(--vermelho-ink); font-weight: 600; }
+    .perm-summary { font-size: 11.5px; color: var(--ink-muted); }
+    .perm-summary .none { color: var(--ink-faint); font-style: italic; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -652,6 +843,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+
+<!-- ================= LOGIN (Firebase Authentication real) ================= -->
+<div class="login-gate" id="login-gate">
+  <form class="login-card" id="login-form">
+    <div class="login-brand">Trialog · Planejamento de Veículos</div>
+    <h2>Entrar</h2>
+    <div class="field">
+      <label for="login-email">E-mail</label>
+      <input type="email" id="login-email" required autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="login-senha">Senha</label>
+      <input type="password" id="login-senha" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn-primary" id="login-submit">Entrar</button>
+    <button type="button" class="btn-ghost login-link" id="login-esqueci">Esqueci minha senha</button>
+    <button type="button" class="btn-ghost login-link login-bootstrap" id="login-bootstrap">Primeiro acesso do administrador · criar senha</button>
+    <div class="login-msg" id="login-msg"></div>
+  </form>
+</div>
 
 <div class="wrap">
 
@@ -665,11 +876,12 @@
     </div>
     <div class="header-side">
       <div class="role-switch">
-        <label for="role-select">Perfil ativo (prévia)</label>
+        <label for="role-select">Perfil ativo</label>
         <select id="role-select">
           <option value="administrador">Administrador</option>
           <option value="supervisor">Supervisor</option>
           <option value="operacao">Operação</option>
+          <option value="gr">GR</option>
           <option value="mesa">Mesa de Frete</option>
           <option value="cliente">Cliente</option>
         </select>
@@ -681,14 +893,21 @@
           <option value="Cobasi">Cobasi</option>
           <option value="Anjun">Anjun</option>
           <option value="Loggi">Loggi</option>
+          <option value="Dia%">Dia%</option>
         </select>
       </div>
+      <div class="autor-field only-internal">
+        <label for="autor-nome">Seu nome</label>
+        <input type="text" id="autor-nome" placeholder="ex: Rodrigo" maxlength="60">
+      </div>
+      <button type="button" class="btn-ghost" id="logout-btn" style="font-size:12px;padding:6px 12px;">Sair</button>
       <div class="tabs" role="tablist">
         <button class="tab-btn active" id="tabbtn-cockpit" role="tab">Cockpit</button>
+        <button class="tab-btn only-mesa-admin" id="tabbtn-mesa" role="tab">Mesa de Frete<span class="count-badge" id="mesa-tab-count" style="display:none;"></span></button>
         <button class="tab-btn only-edit" id="tabbtn-form" role="tab">Cadastrar veículo</button>
         <button class="tab-btn" id="tabbtn-integracao" role="tab">Torre de Controle · prévia</button>
         <button class="tab-btn" id="tabbtn-resumo" role="tab">Resumo diário</button>
-        <button class="tab-btn only-admin" id="tabbtn-usuarios" role="tab">Usuários · prévia</button>
+        <button class="tab-btn only-owner" id="tabbtn-usuarios" role="tab">Usuários</button>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button" title="Alternar visão dia/noite" aria-label="Alternar visão dia/noite">
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"></path></svg>
@@ -719,9 +938,7 @@
       <div class="kpi is-crit"><div class="kpi-num" id="kpi-crit">0</div><div class="kpi-label">Em contratação / viajando</div></div>
     </div>
 
-    <div id="attention-slot"></div>
-
-    <div class="board">
+    <div class="board gate-cockpit">
       <div class="board-head">
         <p class="section-title">Board de carregamento</p>
         <span class="rota" id="board-count">—</span>
@@ -735,9 +952,12 @@
               <th>Tipo</th>
               <th>Motorista</th>
               <th>Placa</th>
+              <th>Responsável</th>
               <th>Carregado</th>
               <th>Carregado em</th>
               <th>Liberação GR</th>
+              <th class="only-internal">Mesa de Frete</th>
+              <th class="only-internal">Operação</th>
               <th>Observação</th>
               <th></th>
             </tr>
@@ -760,6 +980,46 @@
     </footer>
   </div>
 
+  <!-- ================= MESA DE FRETE (demanda de contratação) ================= -->
+  <div class="tab-panel" id="panel-mesa">
+    <div class="kpis kpis-5" id="mesa-kpis-cliente"></div>
+    <div class="kpis kpis-5">
+      <div class="kpi is-warn"><div class="kpi-num" id="mesa-kpi-24-48">0</div><div class="kpi-label">24h a 48h para carregar</div></div>
+      <div class="kpi is-warn"><div class="kpi-num" id="mesa-kpi-12-24">0</div><div class="kpi-label">12h a 24h para carregar</div></div>
+      <div class="kpi is-crit"><div class="kpi-num" id="mesa-kpi-6-12">0</div><div class="kpi-label">06h a 12h para carregar</div></div>
+      <div class="kpi is-crit"><div class="kpi-num" id="mesa-kpi-0-6">0</div><div class="kpi-label">0h a 06h para carregar</div></div>
+      <div class="kpi is-crit"><div class="kpi-num" id="mesa-kpi-excedido">0</div><div class="kpi-label">Horário de Tempo de Contratação Excedido</div></div>
+    </div>
+
+    <div class="board gate-mesafrete">
+      <div class="board-head">
+        <p class="section-title">Demanda de contratação</p>
+        <span class="rota" id="mesa-count">—</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Data / Hora Carregamento</th>
+              <th>Cliente</th>
+              <th>Rota</th>
+              <th>Tipologia</th>
+              <th>Observação</th>
+              <th>Criado por</th>
+              <th>Nome do Motorista</th>
+              <th>Telefone</th>
+              <th>Placa Cavalo</th>
+              <th>Placa Carreta</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="mesa-body"></tbody>
+        </table>
+      </div>
+      <div class="empty-board" id="mesa-empty" style="display:none;">Nenhuma demanda pendente de contratação. 🎉</div>
+    </div>
+  </div>
+
   <!-- ================= FORM ================= -->
   <div class="tab-panel" id="panel-form">
     <div class="form-card">
@@ -771,8 +1031,31 @@
         <button type="button" class="subnav-btn" id="subtab-rotas-diarias">Rotas fixas diárias</button>
       </div>
 
-      <div class="rotas-diarias-panel" id="rotas-diarias-panel" style="display:none;">
-        <p class="field-hint" style="margin-bottom:12px;">Marque as rotas fixas que rodam hoje, informe o horário de carregamento de cada uma e confirme — elas entram direto na programação de hoje como "em contratação", prontas pra você só completar motorista e placa quando fechar. Ordenadas da mais usada pra menos usada.</p>
+      <div class="rotas-diarias-panel gate-rotasfixas" id="rotas-diarias-panel" style="display:none;">
+        <div class="rota-fixa-cadastro">
+          <div class="field">
+            <label for="rf-cliente">Cliente</label>
+            <input type="text" id="rf-cliente" list="clientes-list" placeholder="Ex.: Petz">
+          </div>
+          <div class="field">
+            <label for="rf-rota">Rota</label>
+            <input type="text" id="rf-rota" placeholder="Ex.: RIO">
+          </div>
+          <div class="field">
+            <label for="rf-tipologia">Tipologia</label>
+            <input type="text" id="rf-tipologia" placeholder="Ex.: Toco">
+          </div>
+          <div class="field obs-field">
+            <label for="rf-observacao">Observação (visível para quem for contratar)</label>
+            <textarea id="rf-observacao" maxlength="300" placeholder="Ex.: Veículo 3/4 baú, 5,50mt, com plataforma"></textarea>
+            <div class="rota-fixa-charcount" id="rf-observacao-count">0/300</div>
+          </div>
+          <div class="field" style="flex:none;">
+            <button type="button" class="btn-primary" id="rf-cadastrar-btn">+ Nova rota fixa</button>
+          </div>
+          <span class="rotas-msg" id="rf-cadastrar-msg" style="flex-basis:100%;"></span>
+        </div>
+        <p class="field-hint" style="margin-bottom:12px;">Informe o horário de carregamento de cada rota, escolha no calendário as datas em que ela roda — pode marcar quantas quiser, até o ano inteiro — e confirme — elas entram direto na programação de cada data escolhida como "em contratação", prontas pra você só completar motorista e placa quando fechar. Ordenadas da mais usada pra menos usada.</p>
         <div id="rotas-diarias-list"></div>
         <div class="rotas-diarias-empty" id="rotas-diarias-empty" style="display:none;">Nenhuma rota fixa cadastrada ainda.</div>
         <div style="display:flex; align-items:center; gap:10px; margin-top:14px;">
@@ -805,7 +1088,7 @@
             <label for="f-cliente">Cliente</label>
             <input type="text" id="f-cliente" list="clientes-list" required placeholder="Ex.: Petz">
             <datalist id="clientes-list">
-              <option value="Petz"><option value="Cobasi"><option value="Anjun"><option value="Loggi">
+              <option value="Petz"><option value="Cobasi"><option value="Anjun"><option value="Loggi"><option value="Dia%">
             </datalist>
           </div>
           <div class="field">
@@ -873,14 +1156,6 @@
 
   <!-- ================= TORRE DE CONTROLE (PRÉVIA OFFLINE) ================= -->
   <div class="tab-panel" id="panel-integracao">
-    <div class="demo-banner">
-      <strong>Placa, motorista, cliente, rota e Liberação GR abaixo são os dados reais lidos agora do seu Cockpit</strong> (Firebase, nó "veiculos", programação de 15–16/09). <strong>Status da viagem, Checklist e Posição continuam simulados/ilustrativos</strong> — ainda não vêm da API da Torre de Controle (MMRISK), porque essa integração ainda não existe de verdade; pra isso vamos precisar de um servidor-ponte (Firebase Functions) guardando a credencial do parceiro. A única linha fictícia na tabela é a de exemplo de alerta (marcada como "exemplo"), só pra mostrar como ficaria uma pendência. O visual (tabela com progresso) foi inspirado no grafismo da Torre de Controle real, redesenhado com as cores da Trialog — layout próprio, não é cópia.
-      <br><br>
-      <strong>Como ficaria em produção:</strong> tudo que a Torre de Controle expõe pelo manual da API (GetStatusViagem, GetStatusColetaEntrega, GetPGR, GetAlertasPeriodo etc.) seria consultado automaticamente a cada 10 minutos por essa mesma ponte, sobrescrevendo o dado anterior no Cockpit — sempre a última informação, sem o colaborador precisar consultar nada manualmente. O colaborador só é acionado quando a lâmpada pisca: azul ao iniciar a viagem, verde ao finalizar, vermelho quando dá alerta — e some só quando alguém clica em "resolvido".
-      <br><br>
-      <strong>Coluna "Mapa":</strong> sim, a API devolve latitude/longitude reais por placa (método <code>PosicoesVeiculosCliente</code>/<code>PosicoesVeiculosPlaca</code>, campos <code>Latitude</code>/<code>Longitude</code>, além de <code>Velocidade</code> e a cidade em <code>DescPosicao</code>). Aqui a posição de cada veículo é simulada (clique em ▶ Iniciar pra gerar uma) — mas o mini-mapa e o mapa ampliado ao clicar já são mapas reais (OpenStreetMap), prontos pra receber a coordenada de verdade quando a integração existir.
-    </div>
-
     <div class="view-locked-note">👁 Perfil Cliente — modo assistir, sem edição.</div>
 
     <div class="kpis">
@@ -898,7 +1173,7 @@
       <div class="table-scroll">
         <table class="torre-table">
           <thead>
-            <tr><th></th><th>Placa</th><th>Motorista</th><th>Cliente</th><th>Origem → Destino</th><th>Mapa</th><th>Progresso</th><th>Previsão</th><th>Status</th><th>Ação</th></tr>
+            <tr><th></th><th>Placa</th><th>Motorista</th><th>Cliente</th><th>Origem → Destino</th><th>Mapa</th><th>Progresso</th><th>Previsão</th><th>Status</th><th class="only-torre-op">Comentários</th><th>Ação</th></tr>
           </thead>
           <tbody id="ti-table-body"></tbody>
         </table>
@@ -909,10 +1184,6 @@
 
   <!-- ================= RESUMO DIARIO (DADOS REAIS DO FIREBASE) ================= -->
   <div class="tab-panel" id="panel-resumo">
-    <div class="demo-banner">
-      <strong>Dados reais</strong> — busca direto no seu Firebase (nó "veiculos"), qualquer dia, não só hoje. O filtro de cliente restringe pra quem só deve ver a própria operação; no perfil Cliente ele já vem travado no cliente logado.
-    </div>
-
     <div class="resumo-filtros">
       <div class="field">
         <label for="resumo-data">Data</label>
@@ -926,6 +1197,7 @@
           <option value="Cobasi">Cobasi</option>
           <option value="Anjun">Anjun</option>
           <option value="Loggi">Loggi</option>
+          <option value="Dia%">Dia%</option>
         </select>
       </div>
       <button type="button" class="btn-primary" id="resumo-buscar">Buscar</button>
@@ -960,12 +1232,6 @@
 
   <!-- ================= USUARIOS (PREVIA OFFLINE) ================= -->
   <div class="tab-panel" id="panel-usuarios">
-    <div class="demo-banner">
-      <strong>Prévia de tela — isso ainda não cria login de verdade.</strong> Dá pra cadastrar nome/e-mail/perfil aqui e a lista fica salva (nó "usuariosDemo" do seu Firebase), mas ninguém consegue entrar no sistema com isso ainda. Pra virar controle de acesso de verdade falta plugar o <strong>Firebase Authentication</strong> (senha ou link por e-mail) e travar cada informação no banco com <strong>regras de segurança</strong> por perfil — sem isso qualquer pessoa com o link ainda vê e edita tudo, nenhum perfil bloqueia nada de fato hoje.
-      <br><br>
-      O seletor <strong>"Perfil ativo"</strong> no topo da página simula como cada perfil enxergaria o sistema: Administrador e Supervisor veem tudo, editam tudo e cadastram usuários; Operação e Mesa de Frete veem e editam tudo, menos esta aba; Cliente acompanha Cockpit, Torre de Controle e Resumo diário (já travado no próprio cliente), em modo assistir, sem editar nada.
-    </div>
-
     <div class="board">
       <div class="board-head">
         <p class="section-title">Novo usuário</p>
@@ -985,12 +1251,32 @@
             <option value="administrador">Administrador</option>
             <option value="supervisor">Supervisor</option>
             <option value="operacao">Operação</option>
+            <option value="gr">GR</option>
             <option value="mesa">Mesa de Frete</option>
             <option value="cliente">Cliente</option>
           </select>
         </div>
+        <div class="field" id="u-cliente-wrap" style="display:none;">
+          <label for="u-cliente">Cliente vinculado</label>
+          <select id="u-cliente">
+            <option value="Petz">Petz</option>
+            <option value="Cobasi">Cobasi</option>
+            <option value="Anjun">Anjun</option>
+            <option value="Loggi">Loggi</option>
+            <option value="Dia%">Dia%</option>
+          </select>
+        </div>
         <div class="field checkbox-field">
           <label><input type="checkbox" id="u-ativo" checked> Usuário ativo</label>
+        </div>
+        <div class="field span-2">
+          <label>Permissões de edição (além do que o perfil já libera pra Administrador/Supervisor)</label>
+          <div class="perm-checks">
+            <label><input type="checkbox" id="u-perm-cockpit"> Cockpit — farol, carregado, liberação GR, saiu da doca, confirmar entrega</label>
+            <label><input type="checkbox" id="u-perm-mesafrete"> Mesa de Frete — contratar veículo (motorista/telefone/placas)</label>
+            <label><input type="checkbox" id="u-perm-torre"> Torre de Controle — comentários</label>
+            <label><input type="checkbox" id="u-perm-rotasfixas"> Rotas fixas — cadastrar/editar/confirmar datas</label>
+          </div>
         </div>
         <div class="field span-2 form-actions">
           <button type="submit" class="btn-primary" id="u-submit">Salvar usuário</button>
@@ -1006,7 +1292,7 @@
       </div>
       <div class="table-scroll">
         <table class="torre-table">
-          <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Permissões</th><th>Status</th><th>Validade</th><th>Ações</th></tr></thead>
           <tbody id="usuarios-body"></tbody>
         </table>
       </div>
@@ -1031,8 +1317,79 @@
   </div>
 </div>
 
+<!-- ================= MODAL DE COMENTÁRIOS (Mesa de Frete / Operação) ================= -->
+<div class="map-modal" id="comment-modal">
+  <div class="map-modal-card">
+    <div class="map-modal-head">
+      <div>
+        <h3 id="comment-modal-title">—</h3>
+        <div class="sub" id="comment-modal-sub">—</div>
+      </div>
+      <button type="button" class="map-modal-close" id="comment-modal-close" title="Fechar">✕</button>
+    </div>
+    <div id="comment-modal-canvas"></div>
+    <div class="comment-input-row only-internal">
+      <textarea id="comment-input" maxlength="250" placeholder="Escreva um comentário (até 250 caracteres)..."></textarea>
+      <div class="comment-input-foot">
+        <span class="comment-charcount" id="comment-charcount">0/250</span>
+        <button type="button" class="btn-primary" id="comment-submit">Comentar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL DE LINHA DO TEMPO (rastreio público, mesma visão para todos os perfis) ================= -->
+<div class="map-modal" id="timeline-modal">
+  <div class="map-modal-card">
+    <div class="map-modal-head">
+      <div>
+        <h3 id="timeline-modal-title">—</h3>
+        <div class="sub" id="timeline-modal-sub">—</div>
+      </div>
+      <button type="button" class="map-modal-close" id="timeline-modal-close" title="Fechar">✕</button>
+    </div>
+    <div id="timeline-modal-canvas"></div>
+  </div>
+</div>
+
+<!-- ================= MODAL DE CALENDÁRIO (planejamento multi-data das rotas fixas) ================= -->
+<div class="map-modal" id="calendar-modal">
+  <div class="map-modal-card">
+    <div class="map-modal-head">
+      <div>
+        <h3 id="calendar-modal-title">Escolher datas</h3>
+        <div class="sub" id="calendar-modal-sub">Selecione quantas datas quiser — o horário informado na rota vale para todas.</div>
+      </div>
+      <button type="button" class="map-modal-close" id="calendar-modal-close" title="Fechar">✕</button>
+    </div>
+    <div id="calendar-modal-canvas"></div>
+  </div>
+</div>
+
+<!-- ================= MODAL DE COMENTÁRIOS DA TORRE DE CONTROLE (apenas time operacional) ================= -->
+<div class="map-modal" id="torre-comment-modal">
+  <div class="map-modal-card">
+    <div class="map-modal-head">
+      <div>
+        <h3 id="torre-comment-modal-title">Comentários</h3>
+        <div class="sub" id="torre-comment-modal-sub">—</div>
+      </div>
+      <button type="button" class="map-modal-close" id="torre-comment-modal-close" title="Fechar">✕</button>
+    </div>
+    <div id="torre-comment-modal-canvas"></div>
+    <div class="comment-input-row">
+      <textarea id="torre-comment-input" maxlength="250" placeholder="Escreva um comentário (até 250 caracteres)..."></textarea>
+      <div class="comment-input-foot">
+        <span class="comment-charcount" id="torre-comment-charcount">0/250</span>
+        <button type="button" class="btn-primary" id="torre-comment-submit">Comentar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script>
 (function () {
   // ---------- Tema dia/noite ----------
@@ -1057,6 +1414,21 @@
     });
   })();
 
+  // ---------- Seu nome (autoria dos comentários — vem do login real, não é mais editável à mão) ----------
+  var autorNomeInput = document.getElementById("autor-nome");
+  (function () {
+    var saved = "";
+    try { saved = localStorage.getItem("cockpit-autor-nome") || ""; } catch (e) {}
+    if (autorNomeInput) {
+      autorNomeInput.value = saved;
+      autorNomeInput.readOnly = true;
+    }
+  })();
+  function getAutorNome() {
+    var v = autorNomeInput ? autorNomeInput.value.trim() : "";
+    return v || "Usuário não identificado";
+  }
+
   // ---------- Firebase ----------
   var firebaseConfig = {
     apiKey: "AIzaSyDIfstQrWIN9zeehl-rNWx88PQJu3_m348",
@@ -1068,9 +1440,11 @@
     appId: "1:605731357144:web:389e96646f10b8625472ad"
   };
   var db = null;
+  var auth = null;
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
+    auth = firebase.auth();
   } catch (e) {
     console.error("Falha ao iniciar o Firebase:", e);
   }
@@ -1093,23 +1467,83 @@
 
   // ---------- Tabs ----------
   var tabCockpit = document.getElementById("tabbtn-cockpit");
+  var tabMesa = document.getElementById("tabbtn-mesa");
   var tabForm = document.getElementById("tabbtn-form");
   var tabIntegracao = document.getElementById("tabbtn-integracao");
   var tabResumo = document.getElementById("tabbtn-resumo");
   var tabUsuarios = document.getElementById("tabbtn-usuarios");
   var panelCockpit = document.getElementById("panel-cockpit");
+  var panelMesa = document.getElementById("panel-mesa");
   var panelForm = document.getElementById("panel-form");
   var panelIntegracao = document.getElementById("panel-integracao");
   var panelResumo = document.getElementById("panel-resumo");
   var panelUsuarios = document.getElementById("panel-usuarios");
 
+  // ---------- Barra de rolagem horizontal espelhada no topo de cada tabela ----------
+  // Cria, pra cada .table-scroll da página, uma barrinha de rolagem irmã logo acima da tabela,
+  // sincronizada com a rolagem de baixo — assim dá pra rolar por cima ou por baixo, sem precisar
+  // descer até o fim da tabela pra achar a barra nativa do navegador.
+  (function () {
+    var pairs = [];
+    function buildTopBars() {
+      var wraps = document.querySelectorAll(".table-scroll");
+      Array.prototype.forEach.call(wraps, function (wrap) {
+        if (wrap.getAttribute("data-topscroll-ready")) return;
+        var table = wrap.querySelector("table");
+        if (!table) return;
+        wrap.setAttribute("data-topscroll-ready", "1");
+        var topBar = document.createElement("div");
+        topBar.className = "table-scroll-top";
+        var topInner = document.createElement("div");
+        topInner.className = "table-scroll-top-inner";
+        topBar.appendChild(topInner);
+        wrap.parentNode.insertBefore(topBar, wrap);
+        var syncing = false;
+        topBar.addEventListener("scroll", function () {
+          if (syncing) return;
+          syncing = true;
+          wrap.scrollLeft = topBar.scrollLeft;
+          syncing = false;
+        });
+        wrap.addEventListener("scroll", function () {
+          if (syncing) return;
+          syncing = true;
+          topBar.scrollLeft = wrap.scrollLeft;
+          syncing = false;
+        });
+        var pair = { wrap: wrap, table: table, inner: topInner };
+        pairs.push(pair);
+        if (window.ResizeObserver) {
+          new ResizeObserver(function () { syncWidth(pair); }).observe(table);
+        }
+      });
+    }
+    function syncWidth(pair) {
+      var w = pair.table.scrollWidth;
+      if (w) pair.inner.style.width = w + "px";
+    }
+    function syncAllWidths() {
+      pairs.forEach(syncWidth);
+    }
+    buildTopBars();
+    syncAllWidths();
+    window.addEventListener("resize", syncAllWidths);
+    window.__syncTopScrollbars = function () {
+      buildTopBars();
+      if (window.requestAnimationFrame) requestAnimationFrame(syncAllWidths);
+      else setTimeout(syncAllWidths, 0);
+    };
+  })();
+
   function activateTab(which) {
     tabCockpit.classList.toggle("active", which === "cockpit");
+    tabMesa.classList.toggle("active", which === "mesa");
     tabForm.classList.toggle("active", which === "form");
     tabIntegracao.classList.toggle("active", which === "integracao");
     tabResumo.classList.toggle("active", which === "resumo");
     tabUsuarios.classList.toggle("active", which === "usuarios");
     panelCockpit.classList.toggle("active", which === "cockpit");
+    panelMesa.classList.toggle("active", which === "mesa");
     panelForm.classList.toggle("active", which === "form");
     panelIntegracao.classList.toggle("active", which === "integracao");
     panelResumo.classList.toggle("active", which === "resumo");
@@ -1117,8 +1551,10 @@
     if (which === "integracao" && typeof startTorreDemo === "function") startTorreDemo();
     else if (typeof stopTorreDemo === "function") stopTorreDemo();
     if (which === "resumo" && typeof loadResumo === "function") loadResumo();
+    if (window.__syncTopScrollbars) window.__syncTopScrollbars();
   }
   tabCockpit.addEventListener("click", function () { activateTab("cockpit"); });
+  tabMesa.addEventListener("click", function () { activateTab("mesa"); });
   tabForm.addEventListener("click", function () { startNewEntry(); activateTab("form"); });
   tabIntegracao.addEventListener("click", function () { activateTab("integracao"); });
   tabResumo.addEventListener("click", function () { activateTab("resumo"); });
@@ -1133,8 +1569,13 @@
   function applyRole(role) {
     document.body.className = document.body.className.replace(/\brole-\S+/g, "").trim();
     document.body.classList.add("role-" + role);
-    var current = [tabCockpit, tabForm, tabIntegracao, tabResumo, tabUsuarios].filter(function (t) { return t.classList.contains("active"); })[0];
-    if (current && current.offsetParent === null) activateTab("cockpit");
+    var current = [tabCockpit, tabMesa, tabForm, tabIntegracao, tabResumo, tabUsuarios].filter(function (t) { return t.classList.contains("active"); })[0];
+    if (role === "cliente") {
+      // Cliente só acessa a Torre de Controle — força pra lá se a aba ativa acabou de ficar escondida.
+      if (current !== tabIntegracao) activateTab("integracao");
+    } else if (current && current.offsetParent === null) {
+      activateTab("cockpit");
+    }
     if (clienteVinculadoWrap) clienteVinculadoWrap.style.display = role === "cliente" ? "" : "none";
     var resumoClienteSel = document.getElementById("resumo-cliente");
     if (resumoClienteSel) {
@@ -1153,6 +1594,180 @@
   }
   if (clienteVinculadoSelect) {
     clienteVinculadoSelect.addEventListener("change", function () { applyRole(roleSelect.value); });
+  }
+
+  // ---------- Login (Firebase Authentication real) ----------
+  // Login = e-mail cadastrado, senha = a que a própria pessoa define pelo link recebido por e-mail.
+  // O "Perfil ativo" deixa de ser escolhido livremente: passa a vir do cadastro em Usuários, travado
+  // pra todo mundo — só o dono do sistema (e-mail fixo abaixo) continua podendo trocar, pra testar
+  // como cada perfil enxerga a tela.
+  var OWNER_EMAIL = "rodrigo.zanardo@trialog.com.br";
+  var loginGate = document.getElementById("login-gate");
+  var loginForm = document.getElementById("login-form");
+  var loginEmail = document.getElementById("login-email");
+  var loginSenha = document.getElementById("login-senha");
+  var loginMsg = document.getElementById("login-msg");
+  var loginSubmit = document.getElementById("login-submit");
+  var loginEsqueci = document.getElementById("login-esqueci");
+  var loginBootstrap = document.getElementById("login-bootstrap");
+  var currentUserRecord = null;
+  var unwatchOwnRecord = null;
+
+  function setLoginMsg(text, kind) {
+    if (!loginMsg) return;
+    loginMsg.textContent = text || "";
+    loginMsg.className = "login-msg" + (kind ? " " + kind : "");
+  }
+  function showLoginGate() { if (loginGate) loginGate.classList.remove("hidden"); }
+  function hideLoginGate() { if (loginGate) loginGate.classList.add("hidden"); }
+
+  function loginErrorMessage(err) {
+    var code = err && err.code;
+    if (code === "auth/invalid-email") return "E-mail inválido.";
+    if (code === "auth/user-not-found" || code === "auth/invalid-credential" || code === "auth/wrong-password") return "E-mail ou senha incorretos.";
+    if (code === "auth/too-many-requests") return "Muitas tentativas. Espera um pouco e tenta de novo.";
+    if (code === "auth/user-disabled") return "Este acesso foi desativado no Firebase.";
+    if (code === "auth/weak-password") return "Senha muito curta (mínimo 6 caracteres).";
+    if (code === "auth/email-already-in-use") return "Já existe uma senha criada pra esse e-mail — usa \"Esqueci minha senha\".";
+    return "Não deu pra entrar (" + (code || "erro") + ").";
+  }
+
+  function denyAccess(reason) {
+    setLoginMsg(reason, "err");
+    if (loginSubmit) loginSubmit.disabled = false;
+    if (unwatchOwnRecord) { unwatchOwnRecord(); unwatchOwnRecord = null; }
+    currentUserRecord = null;
+    if (auth) auth.signOut();
+    showLoginGate();
+  }
+
+  function applyPermissoes(perm) {
+    perm = perm || {};
+    document.body.classList.toggle("has-perm-cockpit", !!perm.cockpit);
+    document.body.classList.toggle("has-perm-mesafrete", !!perm.mesafrete);
+    document.body.classList.toggle("has-perm-torre", !!perm.torre);
+    document.body.classList.toggle("has-perm-rotasfixas", !!perm.rotasfixas);
+  }
+
+  function watchOwnRecord(id) {
+    if (!db || !id) return;
+    db.ref("usuariosDemo/" + id).on("value", function (snap) {
+      var rec = snap.val();
+      if (!rec) return;
+      if (rec.ativo === false) { denyAccess("Seu acesso foi desativado. Fale com o administrador."); return; }
+      if (rec.validoAte && rec.validoAte < new Date().toISOString()) {
+        denyAccess("Seu acesso expirou em " + formatValidadeBr(rec.validoAte) + ". Peça pro administrador renovar.");
+        return;
+      }
+      currentUserRecord = Object.assign({ id: id }, rec);
+      applyPermissoes(currentUserRecord.permissoes);
+    });
+    unwatchOwnRecord = function () { db.ref("usuariosDemo/" + id).off("value"); };
+  }
+
+  function onLoginSuccess(rec) {
+    hideLoginGate();
+    setLoginMsg("");
+    if (loginSubmit) loginSubmit.disabled = false;
+    if (loginForm) loginForm.reset();
+    if (autorNomeInput) {
+      autorNomeInput.value = rec.nome || "";
+      try { localStorage.setItem("cockpit-autor-nome", rec.nome || ""); } catch (e) {}
+    }
+    var isOwner = (rec.email || "").toLowerCase() === OWNER_EMAIL;
+    document.body.classList.toggle("is-owner", isOwner);
+    applyPermissoes(rec.permissoes);
+    if (roleSelect) {
+      roleSelect.value = rec.perfil || "operacao";
+      roleSelect.disabled = !isOwner; // só o dono pode "ver como" outro perfil, pra testar a tela
+    }
+    if (rec.perfil === "cliente" && clienteVinculadoSelect && rec.clienteVinculado) {
+      clienteVinculadoSelect.value = rec.clienteVinculado;
+    }
+    if (clienteVinculadoSelect) clienteVinculadoSelect.disabled = !isOwner;
+    applyRole(roleSelect ? roleSelect.value : (rec.perfil || "operacao"));
+    if (rec.id) watchOwnRecord(rec.id);
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!auth) { setLoginMsg("Sem conexão com o login agora.", "err"); return; }
+      loginSubmit.disabled = true;
+      setLoginMsg("Entrando...");
+      auth.signInWithEmailAndPassword(loginEmail.value.trim(), loginSenha.value).catch(function (err) {
+        loginSubmit.disabled = false;
+        setLoginMsg(loginErrorMessage(err), "err");
+      });
+      // sucesso é tratado pelo onAuthStateChanged abaixo
+    });
+  }
+  if (loginEsqueci) {
+    loginEsqueci.addEventListener("click", function () {
+      var email = (loginEmail.value || "").trim();
+      if (!email) { setLoginMsg("Digite seu e-mail acima e clique de novo em \"Esqueci minha senha\".", "err"); return; }
+      if (!auth) { setLoginMsg("Sem conexão com o login agora.", "err"); return; }
+      auth.sendPasswordResetEmail(email).then(function () {
+        setLoginMsg("Enviamos um e-mail pra " + email + " com o link pra criar uma nova senha.", "ok");
+      }).catch(function (err) {
+        setLoginMsg(loginErrorMessage(err), "err");
+      });
+    });
+  }
+  if (loginBootstrap) {
+    loginBootstrap.addEventListener("click", function () {
+      var email = (loginEmail.value || "").trim();
+      var senha = loginSenha.value;
+      if (email.toLowerCase() !== OWNER_EMAIL) { setLoginMsg("Essa opção é só pra criar o primeiro acesso do administrador do sistema.", "err"); return; }
+      if (!senha || senha.length < 6) { setLoginMsg("Digite acima a senha que você quer usar (mínimo 6 caracteres) e clique de novo em \"criar senha\".", "err"); return; }
+      if (!auth) { setLoginMsg("Sem conexão com o login agora.", "err"); return; }
+      setLoginMsg("Criando seu acesso...");
+      auth.createUserWithEmailAndPassword(email, senha).catch(function (err) {
+        setLoginMsg(loginErrorMessage(err), "err");
+      });
+    });
+  }
+
+  if (auth) {
+    auth.onAuthStateChanged(function (user) {
+      if (!user) {
+        currentUserRecord = null;
+        if (unwatchOwnRecord) { unwatchOwnRecord(); unwatchOwnRecord = null; }
+        showLoginGate();
+        return;
+      }
+      if (!db) { denyAccess("Sem conexão com o banco de dados agora."); return; }
+      var emailLower = (user.email || "").toLowerCase();
+      db.ref("usuariosDemo").orderByChild("emailLower").equalTo(emailLower).once("value").then(function (snapshot) {
+        var rec = null;
+        snapshot.forEach(function (child) { rec = Object.assign({ id: child.key }, child.val()); });
+        if (!rec) {
+          if (emailLower === OWNER_EMAIL) {
+            rec = { id: null, nome: "Rodrigo Zanardo", email: user.email, perfil: "administrador", ativo: true, permissoes: {} };
+          } else {
+            denyAccess("Seu usuário não está cadastrado no sistema. Peça pro administrador te cadastrar.");
+            return;
+          }
+        }
+        if (rec.ativo === false) { denyAccess("Seu acesso foi desativado. Fale com o administrador."); return; }
+        if (rec.validoAte && rec.validoAte < new Date().toISOString()) {
+          denyAccess("Seu acesso expirou em " + formatValidadeBr(rec.validoAte) + ". Peça pro administrador renovar.");
+          return;
+        }
+        onLoginSuccess(rec);
+      }).catch(function (err) {
+        denyAccess("Não deu pra validar seu acesso (" + (err && err.code ? err.code : "erro") + ").");
+      });
+    });
+  } else {
+    setLoginMsg("Login indisponível agora (Firebase Authentication não iniciou).", "err");
+  }
+  var logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      if (unwatchOwnRecord) { unwatchOwnRecord(); unwatchOwnRecord = null; }
+      if (auth) auth.signOut();
+    });
   }
 
   // ---------- Date picker ----------
@@ -1256,7 +1871,8 @@
       liberacaoGR: emContratacao ? "nao" : fGr.value,
       emContratacao: emContratacao,
       observacao: fObs.value.trim(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      atualizadoPor: getAutorNome()
     };
 
     var btn = document.getElementById("btn-submit");
@@ -1267,6 +1883,7 @@
       p = db.ref("veiculos/" + fId.value).update(payload);
     } else {
       payload.createdAt = payload.updatedAt;
+      payload.criadoPor = payload.atualizadoPor;
       p = db.ref("veiculos").push(payload);
     }
 
@@ -1293,22 +1910,28 @@
   var boardBody = document.getElementById("board-body");
   var boardEmpty = document.getElementById("board-empty");
   var boardCount = document.getElementById("board-count");
-  var attentionSlot = document.getElementById("attention-slot");
 
   var STATUS_LABEL = { sim: "Sim", andamento: "Andamento", nao: "Não" };
 
+  // Toda alteração de campo fica registrada: quem alterou e quando — além do "updatedAt" geral do
+  // registro, guarda também "<campo>Por" e "<campo>AlteradoEm" específicos daquele campo.
   function fieldChanged(docId, field, value) {
     if (!db) return;
-    db.ref("veiculos/" + docId).update(
-      Object.defineProperty({ updatedAt: new Date().toISOString() }, field, { value: value, enumerable: true })
-    ).catch(function (err) {
+    var now = new Date().toISOString();
+    var autor = getAutorNome();
+    var update = { updatedAt: now, atualizadoPor: autor };
+    update[field] = value;
+    update[field + "Por"] = autor;
+    update[field + "AlteradoEm"] = now;
+    db.ref("veiculos/" + docId).update(update).catch(function (err) {
       showBanner("Não deu pra atualizar o status (" + (err && err.code ? err.code : "erro") + ").", true);
     });
   }
 
-  function renderStatusSelect(id, field, value, options) {
+  function renderStatusSelect(id, field, value, options, title) {
     var sel = document.createElement("select");
     sel.className = "status-select st-" + value;
+    if (title) sel.title = title;
     (options || ["nao", "andamento", "sim"]).forEach(function (v) {
       var opt = document.createElement("option");
       opt.value = v; opt.textContent = STATUS_LABEL[v];
@@ -1322,6 +1945,11 @@
     return sel;
   }
 
+  function autoriaTitle(por, quando) {
+    if (!por && !quando) return "";
+    return "Última alteração: " + (por || "—") + (quando ? " em " + formatIsoBr(quando) : "");
+  }
+
   function renderCarregadoEmInput(d) {
     var wrap = document.createElement("div");
     wrap.className = "carregado-em-cell";
@@ -1329,9 +1957,16 @@
     inp.type = "datetime-local";
     inp.className = "carregado-em-input";
     inp.value = d.carregadoEm || "";
+    if (d.carregadoEmPor) inp.title = autoriaTitle(d.carregadoEmPor, d.carregadoEmAlteradoEm);
     inp.addEventListener("change", function () {
       var val = inp.value;
-      var update = { carregadoEm: val, carregado: val ? "sim" : "andamento", updatedAt: new Date().toISOString() };
+      var now = new Date().toISOString();
+      var autor = getAutorNome();
+      var update = {
+        carregadoEm: val, carregado: val ? "sim" : "andamento",
+        carregadoEmPor: autor, carregadoEmAlteradoEm: now,
+        updatedAt: now, atualizadoPor: autor
+      };
       db.ref("veiculos/" + d.id).update(update).catch(function (err) {
         showBanner("Não deu pra salvar o horário real (" + (err && err.code ? err.code : "erro") + ").", true);
       });
@@ -1349,47 +1984,197 @@
     return "liberado";
   }
 
-  function renderAttention(allDocs) {
-    var critDocs = allDocs.filter(function (d) {
-      var s = effectiveSeverity(d);
-      return s === "contratacao" || s === "viajando";
-    });
-    critDocs.sort(function (a, b) {
+  // Farol de responsabilidade — deriva de quem está com o "bastão" agora, sem precisar de campo próprio.
+  // Mesa de Frete: veículo em contratação.
+  // GR: já contratado, mas liberação do GR ainda não veio.
+  // Operação: liberado pelo GR e ainda não carregado, OU carregado e aguardando sair da doca.
+  // Em trânsito: já saiu da doca, aguardando confirmação de entrega.
+  // Concluído: entrega confirmada.
+  function responsavelAtual(d) {
+    if (d.entregueEm) return { owner: "concluido", label: "Concluído" };
+    if (d.saiuDocaEm) return { owner: "transito", label: "Em trânsito" };
+    if (d.emContratacao) return { owner: "mesa", label: "Mesa de Frete" };
+    if (d.liberacaoGR !== "sim") return { owner: "gr", label: "GR" };
+    return { owner: "operacao", label: "Operação" };
+  }
+
+  // ---------- Mesa de Frete: fila de demanda pendente de contratação (todas as datas) ----------
+  var MESA_CLIENTES_FIXOS = ["Petz", "Cobasi", "Loggi", "Anjun", "Dia%"];
+  var mesaBody = document.getElementById("mesa-body");
+  var mesaEmpty = document.getElementById("mesa-empty");
+  var mesaCountEl = document.getElementById("mesa-count");
+  var mesaTabCount = document.getElementById("mesa-tab-count");
+  var mesaKpisClienteEl = document.getElementById("mesa-kpis-cliente");
+
+  function mesaHorasParaCarregar(d) {
+    if (!d.data || !d.hora) return null;
+    var alvo = new Date(d.data + "T" + d.hora);
+    if (isNaN(alvo.getTime())) return null;
+    return (alvo.getTime() - Date.now()) / 3600000;
+  }
+
+  function renderMesaDemanda(allDocs) {
+    if (!mesaBody) return;
+    var demanda = allDocs.filter(function (d) { return !!d.emContratacao; });
+    demanda.sort(function (a, b) {
       return ((a.data || "") + " " + (a.hora || "")).localeCompare((b.data || "") + " " + (b.hora || ""));
     });
-    attentionSlot.innerHTML = "";
-    if (critDocs.length) {
-      var box = document.createElement("div");
-      box.className = "attention";
-      var title = document.createElement("p");
-      title.className = "section-title";
-      title.innerHTML = "⛔ Precisa de você agora <span class=\"count-badge\">" + critDocs.length + (critDocs.length === 1 ? " pendência" : " pendências") + "</span>";
-      box.appendChild(title);
-      var cards = document.createElement("div");
-      cards.className = "alert-cards";
-      critDocs.forEach(function (d) {
-        var card = document.createElement("div");
-        card.className = "alert-card";
-        var why = d.emContratacao
-          ? (d.observacao || "Veículo em contratação")
-          : (d.observacao || (d.carregado === "sim" ? "Carregado e viajando — confirmar entrega/fechar o dia" : "Pendência no carregamento"));
-        var plateLine = d.emContratacao ? "Em contratação" : (d.placa || "Sem placa") + (d.tipologia ? " · " + esc(d.tipologia) : "");
-        var whenLine = esc(formatDataBr(d.data)) + (d.hora ? " · " + esc(d.hora) : "");
-        var whoLine = (d.emContratacao ? "A contratar" : esc(d.motorista)) + " · " + esc(d.cliente) + (d.rota ? " → " + esc(d.rota) : "");
-        card.innerHTML =
-          "<div class=\"plate\">" + (d.emContratacao ? plateLine : esc(plateLine)) + " <span class=\"when-tag\">" + whenLine + "</span></div>" +
-          "<div class=\"who\">" + whoLine + "</div>" +
-          "<div class=\"why\">" + esc(why) + "</div>";
-        cards.appendChild(card);
-      });
-      box.appendChild(cards);
-      attentionSlot.appendChild(box);
-    } else {
-      var okBox = document.createElement("div");
-      okBox.className = "attention-empty";
-      okBox.textContent = "✅ Nenhuma pendência em aberto — em nenhuma data.";
-      attentionSlot.appendChild(okBox);
+    var todayIso = todayISO();
+
+    // preserva o que já estava sendo digitado nas linhas antes de reconstruir a tabela
+    var draftCache = {};
+    Array.prototype.forEach.call(mesaBody.querySelectorAll("tr[data-id]"), function (tr) {
+      var id = tr.getAttribute("data-id");
+      var get = function (cls) { var el = tr.querySelector(cls); return el ? el.value : undefined; };
+      draftCache[id] = {
+        tipologia: get(".mesa-inp-tipologia"),
+        motorista: get(".mesa-inp-motorista"),
+        telefone: get(".mesa-inp-telefone"),
+        placaCavalo: get(".mesa-inp-placa-cavalo"),
+        placaCarreta: get(".mesa-inp-placa-carreta")
+      };
+    });
+
+    mesaBody.innerHTML = "";
+    mesaEmpty.style.display = demanda.length ? "none" : "block";
+    mesaCountEl.textContent = demanda.length + (demanda.length === 1 ? " rota aguardando" : " rotas aguardando");
+    if (mesaTabCount) {
+      mesaTabCount.style.display = demanda.length ? "" : "none";
+      mesaTabCount.textContent = demanda.length;
     }
+
+    // cards por cliente (linha 1) — sempre mostra os clientes fixos, mesmo com 0, mais qualquer outro que apareça nos dados
+    var porCliente = {};
+    demanda.forEach(function (d) {
+      var c = d.cliente || "Sem cliente";
+      porCliente[c] = (porCliente[c] || 0) + 1;
+    });
+    var clientes = MESA_CLIENTES_FIXOS.slice();
+    Object.keys(porCliente).forEach(function (c) { if (clientes.indexOf(c) === -1) clientes.push(c); });
+    if (mesaKpisClienteEl) {
+      mesaKpisClienteEl.innerHTML = clientes.map(function (c) {
+        return '<div class="kpi is-total"><div class="kpi-num">' + (porCliente[c] || 0) + '</div><div class="kpi-label">' + esc(c) + ' — aguardando contratação</div></div>';
+      }).join("");
+    }
+
+    // cards por janela de tempo até o carregamento (linha 2) — faixas exclusivas + excedido
+    var buckets = { excedido: 0, "0-6": 0, "6-12": 0, "12-24": 0, "24-48": 0 };
+    demanda.forEach(function (d) {
+      var h = mesaHorasParaCarregar(d);
+      if (h === null) return;
+      if (h < 0) buckets.excedido++;
+      else if (h < 6) buckets["0-6"]++;
+      else if (h < 12) buckets["6-12"]++;
+      else if (h < 24) buckets["12-24"]++;
+      else if (h < 48) buckets["24-48"]++;
+    });
+    document.getElementById("mesa-kpi-24-48").textContent = buckets["24-48"];
+    document.getElementById("mesa-kpi-12-24").textContent = buckets["12-24"];
+    document.getElementById("mesa-kpi-6-12").textContent = buckets["6-12"];
+    document.getElementById("mesa-kpi-0-6").textContent = buckets["0-6"];
+    document.getElementById("mesa-kpi-excedido").textContent = buckets.excedido;
+
+    demanda.forEach(function (d) {
+      var tr = document.createElement("tr");
+      tr.setAttribute("data-id", d.id);
+      var atrasada = d.data && d.data < todayIso;
+      var draft = draftCache[d.id] || {};
+
+      var tdHora = document.createElement("td");
+      tdHora.innerHTML = "<span class=\"" + (atrasada ? "mesa-atraso" : "") + "\">" + esc(formatDataBr(d.data)) + "</span>" +
+        (d.hora ? "<br><span class=\"rota\">" + esc(d.hora) + "</span>" : "");
+      tr.appendChild(tdHora);
+
+      var tdCliente = document.createElement("td"); tdCliente.textContent = d.cliente || "—"; tr.appendChild(tdCliente);
+      var tdRota = document.createElement("td"); tdRota.textContent = d.rota || "—"; tr.appendChild(tdRota);
+
+      var tdTipo = document.createElement("td");
+      var inpTipo = document.createElement("input");
+      inpTipo.type = "text"; inpTipo.className = "mesa-inp mesa-inp-tipologia";
+      inpTipo.value = draft.tipologia !== undefined ? draft.tipologia : (d.tipologia || "");
+      tdTipo.appendChild(inpTipo);
+      tr.appendChild(tdTipo);
+
+      var obsMesaTexto = d.observacao;
+      if (!obsMesaTexto) {
+        var rotaFixaMatch = rotasFixasRaw.filter(function (r) { return usoKey(r.cliente, r.rota) === usoKey(d.cliente, d.rota); })[0];
+        if (rotaFixaMatch && rotaFixaMatch.observacao) obsMesaTexto = rotaFixaMatch.observacao;
+      }
+      var tdObsMesa = document.createElement("td"); tdObsMesa.className = "obs"; tdObsMesa.textContent = obsMesaTexto || "—"; tr.appendChild(tdObsMesa);
+      var tdCriadoPor = document.createElement("td"); tdCriadoPor.textContent = d.criadoPor || "—"; tr.appendChild(tdCriadoPor);
+
+      var tdMotorista = document.createElement("td");
+      var inpMotorista = document.createElement("input");
+      inpMotorista.type = "text"; inpMotorista.className = "mesa-inp mesa-inp-motorista"; inpMotorista.placeholder = "Nome do motorista";
+      inpMotorista.value = draft.motorista !== undefined ? draft.motorista : (d.motorista || "");
+      tdMotorista.appendChild(inpMotorista);
+      tr.appendChild(tdMotorista);
+
+      var tdTelefone = document.createElement("td");
+      var inpTelefone = document.createElement("input");
+      inpTelefone.type = "text"; inpTelefone.className = "mesa-inp mesa-inp-telefone"; inpTelefone.placeholder = "Telefone";
+      inpTelefone.value = draft.telefone !== undefined ? draft.telefone : (d.telefone || "");
+      tdTelefone.appendChild(inpTelefone);
+      tr.appendChild(tdTelefone);
+
+      var tdPlacaCavalo = document.createElement("td");
+      var inpPlacaCavalo = document.createElement("input");
+      inpPlacaCavalo.type = "text"; inpPlacaCavalo.className = "mesa-inp mesa-inp-placa mesa-inp-placa-cavalo"; inpPlacaCavalo.placeholder = "Placa cavalo";
+      inpPlacaCavalo.value = draft.placaCavalo !== undefined ? draft.placaCavalo : (d.placa || "");
+      tdPlacaCavalo.appendChild(inpPlacaCavalo);
+      tr.appendChild(tdPlacaCavalo);
+
+      var tdPlacaCarreta = document.createElement("td");
+      var inpPlacaCarreta = document.createElement("input");
+      inpPlacaCarreta.type = "text"; inpPlacaCarreta.className = "mesa-inp mesa-inp-placa mesa-inp-placa-carreta"; inpPlacaCarreta.placeholder = "Placa carreta";
+      inpPlacaCarreta.value = draft.placaCarreta !== undefined ? draft.placaCarreta : (d.placaCarreta || "");
+      tdPlacaCarreta.appendChild(inpPlacaCarreta);
+      tr.appendChild(tdPlacaCarreta);
+
+      var tdActions = document.createElement("td");
+      var contratarBtn = document.createElement("button");
+      contratarBtn.type = "button";
+      contratarBtn.className = "btn-primary mesa-contratar-btn";
+      contratarBtn.textContent = "Contratado";
+      var msgSpan = document.createElement("span");
+      msgSpan.className = "mesa-row-msg";
+      contratarBtn.addEventListener("click", function () {
+        msgSpan.textContent = "";
+        var tipologiaVal = inpTipo.value.trim();
+        var motoristaVal = inpMotorista.value.trim();
+        var telefoneVal = inpTelefone.value.trim();
+        var placaCavaloVal = inpPlacaCavalo.value.trim().toUpperCase();
+        var placaCarretaVal = inpPlacaCarreta.value.trim().toUpperCase();
+        if (!motoristaVal || !placaCavaloVal) {
+          msgSpan.textContent = "Preencha ao menos motorista e placa cavalo.";
+          return;
+        }
+        if (!db) { showBanner("Sem conexão com o banco de dados agora.", true); return; }
+        contratarBtn.disabled = true;
+        var nowC = new Date().toISOString(); var autorC = getAutorNome();
+        db.ref("veiculos/" + d.id).update({
+          tipologia: tipologiaVal,
+          motorista: motoristaVal,
+          telefone: telefoneVal,
+          placa: placaCavaloVal,
+          placaCarreta: placaCarretaVal,
+          emContratacao: false,
+          carregado: "nao",
+          contratadoPor: autorC,
+          contratadoEm: nowC,
+          updatedAt: nowC,
+          atualizadoPor: autorC
+        }).catch(function (err) {
+          contratarBtn.disabled = false;
+          msgSpan.textContent = "Não deu pra salvar (" + (err && err.code ? err.code : "erro") + ").";
+        });
+      });
+      tdActions.appendChild(contratarBtn);
+      tdActions.appendChild(msgSpan);
+      tr.appendChild(tdActions);
+
+      mesaBody.appendChild(tr);
+    });
   }
 
   function render(docs) {
@@ -1437,7 +2222,17 @@
       }
       tr.appendChild(tdMot);
 
-      var tdPlaca = document.createElement("td"); tdPlaca.className = "placa"; tdPlaca.textContent = d.emContratacao ? "—" : (d.placa || "—"); tr.appendChild(tdPlaca);
+      var tdPlaca = document.createElement("td"); tdPlaca.className = "placa";
+      tdPlaca.textContent = d.emContratacao ? "—" : ((d.placa || "—") + (d.placaCarreta ? " / " + d.placaCarreta : ""));
+      tr.appendChild(tdPlaca);
+
+      var tdResponsavel = document.createElement("td");
+      var resp = responsavelAtual(d);
+      var farolSpan = document.createElement("span");
+      farolSpan.className = "farol-badge farol-" + resp.owner;
+      farolSpan.textContent = resp.label;
+      tdResponsavel.appendChild(farolSpan);
+      tr.appendChild(tdResponsavel);
 
       var tdCarregado = document.createElement("td");
       if (d.emContratacao) {
@@ -1445,7 +2240,7 @@
       } else if (d.carregadoEm) {
         tdCarregado.innerHTML = "<span class=\"semaforo ok\">Sim</span>";
       } else {
-        tdCarregado.appendChild(renderStatusSelect(d.id, "carregado", d.carregado || "nao", ["nao", "andamento"]));
+        tdCarregado.appendChild(renderStatusSelect(d.id, "carregado", d.carregado || "nao", ["nao", "andamento"], autoriaTitle(d.carregadoPor, d.carregadoAlteradoEm)));
       }
       tr.appendChild(tdCarregado);
 
@@ -1461,9 +2256,21 @@
       if (d.emContratacao) {
         tdGr.innerHTML = "<span class=\"rota\">—</span>";
       } else {
-        tdGr.appendChild(renderStatusSelect(d.id, "liberacaoGR", d.liberacaoGR || "nao"));
+        tdGr.appendChild(renderStatusSelect(d.id, "liberacaoGR", d.liberacaoGR || "nao", null, autoriaTitle(d.liberacaoGRPor, d.liberacaoGRAlteradoEm)));
       }
       tr.appendChild(tdGr);
+
+      var tdComentarioMesa = document.createElement("td");
+      tdComentarioMesa.className = "comment-cell only-internal";
+      tdComentarioMesa.appendChild(renderCommentPreview(d, "comentariosMesa"));
+      tdComentarioMesa.addEventListener("click", function () { openCommentModal(d, "comentariosMesa", "Mesa de Frete"); });
+      tr.appendChild(tdComentarioMesa);
+
+      var tdComentarioOperacao = document.createElement("td");
+      tdComentarioOperacao.className = "comment-cell only-internal";
+      tdComentarioOperacao.appendChild(renderCommentPreview(d, "comentariosOperacao"));
+      tdComentarioOperacao.addEventListener("click", function () { openCommentModal(d, "comentariosOperacao", "Operação"); });
+      tr.appendChild(tdComentarioOperacao);
 
       var tdObs = document.createElement("td"); tdObs.className = "obs"; tdObs.textContent = d.observacao || "—"; tr.appendChild(tdObs);
 
@@ -1472,6 +2279,32 @@
       var editBtn = document.createElement("button"); editBtn.className = "icon-btn"; editBtn.title = "Editar"; editBtn.textContent = "✎";
       editBtn.addEventListener("click", function () { startEdit(d); });
       actions.appendChild(editBtn);
+
+      if (!d.emContratacao && d.carregado === "sim" && !d.saiuDocaEm) {
+        var saiuBtn = document.createElement("button"); saiuBtn.className = "icon-btn only-internal"; saiuBtn.title = "Marcar saída da doca"; saiuBtn.textContent = "🚛";
+        saiuBtn.addEventListener("click", function () {
+          var now = new Date().toISOString(); var autor = getAutorNome();
+          db.ref("veiculos/" + d.id).update({ saiuDocaEm: now, saiuDocaPor: autor, updatedAt: now, atualizadoPor: autor }).catch(function (err) {
+            showBanner("Não deu pra registrar a saída da doca (" + (err && err.code ? err.code : "erro") + ").", true);
+          });
+        });
+        actions.appendChild(saiuBtn);
+      }
+
+      if (d.saiuDocaEm && !d.entregueEm) {
+        var entregaBtn = document.createElement("button"); entregaBtn.className = "icon-btn only-internal"; entregaBtn.title = "Confirmar entrega"; entregaBtn.textContent = "✅";
+        entregaBtn.addEventListener("click", function () {
+          var now = new Date().toISOString(); var autor = getAutorNome();
+          db.ref("veiculos/" + d.id).update({ entregueEm: now, entreguePor: autor, updatedAt: now, atualizadoPor: autor }).catch(function (err) {
+            showBanner("Não deu pra confirmar a entrega (" + (err && err.code ? err.code : "erro") + ").", true);
+          });
+        });
+        actions.appendChild(entregaBtn);
+      }
+
+      var timelineBtn = document.createElement("button"); timelineBtn.className = "icon-btn timeline-btn"; timelineBtn.title = "Ver linha do tempo"; timelineBtn.textContent = "🕒";
+      timelineBtn.addEventListener("click", function () { openTimelineModal(d); });
+      actions.appendChild(timelineBtn);
 
       var delBtn = document.createElement("button"); delBtn.className = "icon-btn danger"; delBtn.title = "Excluir"; delBtn.textContent = "✕";
       var confirming = false, confirmTimer = null;
@@ -1502,6 +2335,153 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c];
     });
   }
+
+  function formatIsoBr(iso) {
+    if (!iso) return "";
+    var d2 = new Date(iso);
+    if (isNaN(d2.getTime())) return iso;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    return pad(d2.getDate()) + "/" + pad(d2.getMonth() + 1) + "/" + d2.getFullYear() + " " + pad(d2.getHours()) + ":" + pad(d2.getMinutes());
+  }
+
+  // ---------- Comentários (Mesa de Frete / Operação) ----------
+  function commentsList(d, field) {
+    var obj = d[field] || {};
+    var list = Object.keys(obj).map(function (k) { return Object.assign({ id: k }, obj[k]); });
+    list.sort(function (a, b) { return (a.ts || "").localeCompare(b.ts || ""); });
+    return list;
+  }
+
+  function renderCommentPreview(d, field) {
+    var wrap = document.createElement("div");
+    var list = commentsList(d, field);
+    if (!list.length) {
+      wrap.innerHTML = "<span class=\"comment-preview is-empty\">Sem comentários</span>";
+      return wrap;
+    }
+    var last = list[list.length - 1];
+    wrap.innerHTML =
+      "<span class=\"comment-preview\">" + esc(last.texto) + "</span>" +
+      "<div class=\"comment-meta\">" + esc(last.usuario || "—") + " · " + esc(formatIsoBr(last.ts)) +
+      (list.length > 1 ? "<span class=\"comment-count\">" + list.length + "</span>" : "") + "</div>";
+    return wrap;
+  }
+
+  var commentModal = document.getElementById("comment-modal");
+  var commentModalCanvas = document.getElementById("comment-modal-canvas");
+  var commentModalTitle = document.getElementById("comment-modal-title");
+  var commentModalSub = document.getElementById("comment-modal-sub");
+  var commentModalCloseBtn = document.getElementById("comment-modal-close");
+  var commentInput = document.getElementById("comment-input");
+  var commentCharcount = document.getElementById("comment-charcount");
+  var commentSubmitBtn = document.getElementById("comment-submit");
+  var commentModalDoc = null, commentModalField = null;
+
+  function renderCommentThread() {
+    if (!commentModalDoc) return;
+    var list = commentsList(commentModalDoc, commentModalField);
+    if (!list.length) {
+      commentModalCanvas.innerHTML = "<div class=\"comment-empty-state\">Nenhum comentário ainda. Seja o primeiro a registrar uma ação.</div>";
+      return;
+    }
+    var html = "";
+    list.forEach(function (c) {
+      html += "<div class=\"comment-thread-item\"><div class=\"txt\">" + esc(c.texto) + "</div>" +
+        "<div class=\"meta\">" + esc(c.usuario || "—") + " · " + esc(formatIsoBr(c.ts)) + "</div></div>";
+    });
+    commentModalCanvas.innerHTML = html;
+    commentModalCanvas.scrollTop = commentModalCanvas.scrollHeight;
+  }
+
+  function openCommentModal(d, field, label) {
+    if (!commentModal) return;
+    commentModalDoc = d; commentModalField = field;
+    commentModalTitle.textContent = "Comentários · " + label;
+    commentModalSub.textContent = (d.emContratacao ? "Em contratação" : (d.placa || "—")) + " · " + (d.cliente || "—") + (d.rota ? " → " + d.rota : "");
+    commentInput.value = "";
+    commentCharcount.textContent = "0/250";
+    renderCommentThread();
+    commentModal.classList.add("show");
+  }
+  function closeCommentModal() {
+    if (!commentModal) return;
+    commentModal.classList.remove("show");
+    commentModalDoc = null; commentModalField = null;
+  }
+  if (commentModalCloseBtn) commentModalCloseBtn.addEventListener("click", closeCommentModal);
+  if (commentModal) commentModal.addEventListener("click", function (ev) { if (ev.target === commentModal) closeCommentModal(); });
+  if (commentInput) {
+    commentInput.addEventListener("input", function () {
+      commentCharcount.textContent = commentInput.value.length + "/250";
+    });
+  }
+  if (commentSubmitBtn) {
+    commentSubmitBtn.addEventListener("click", function () {
+      var texto = commentInput.value.trim();
+      if (!texto || !commentModalDoc || !commentModalField) return;
+      if (!db) { showBanner("Sem conexão com o banco de dados agora.", true); return; }
+      commentSubmitBtn.disabled = true;
+      db.ref("veiculos/" + commentModalDoc.id + "/" + commentModalField).push({
+        texto: texto.slice(0, 250), usuario: getAutorNome(), ts: new Date().toISOString()
+      }).then(function () {
+        commentSubmitBtn.disabled = false;
+        commentInput.value = "";
+        commentCharcount.textContent = "0/250";
+      }).catch(function (err) {
+        commentSubmitBtn.disabled = false;
+        showBanner("Não deu pra salvar o comentário (" + (err && err.code ? err.code : "erro") + ").", true);
+      });
+    });
+  }
+
+  // ---------- Linha do tempo pública (rastreio estilo Correios/Amazon — mesma visão p/ todos os perfis) ----------
+  var timelineModal = document.getElementById("timeline-modal");
+  var timelineModalCanvas = document.getElementById("timeline-modal-canvas");
+  var timelineModalTitle = document.getElementById("timeline-modal-title");
+  var timelineModalSub = document.getElementById("timeline-modal-sub");
+  var timelineModalCloseBtn = document.getElementById("timeline-modal-close");
+
+  function timelineSteps(d) {
+    var steps = [];
+    if (d.emContratacao) {
+      steps.push({ label: "Em contratação", when: null, por: d.criadoPor || null, state: "current" });
+      steps.push({ label: "Liberado pelo GR", when: null, por: null, state: "future" });
+    } else {
+      steps.push({ label: "Contratado", when: d.createdAt || null, por: d.criadoPor || d.contratadoPor || null, state: "done" });
+      steps.push({ label: "Liberado pelo GR", when: d.liberacaoGR === "sim" ? (d.liberacaoGRAlteradoEm || d.updatedAt || null) : null, por: d.liberacaoGR === "sim" ? (d.liberacaoGRPor || null) : null, state: d.liberacaoGR === "sim" ? "done" : "current" });
+    }
+    var carregadoState = d.carregado === "sim" ? "done" : (d.emContratacao || d.liberacaoGR !== "sim" ? "future" : (d.carregado === "andamento" ? "current" : "future"));
+    steps.push({ label: "Carregado", when: d.carregadoEm || null, por: d.carregadoEmPor || d.carregadoPor || null, state: carregadoState });
+    steps.push({ label: "Saiu da doca", when: d.saiuDocaEm || null, por: d.saiuDocaPor || null, state: d.saiuDocaEm ? "done" : (d.carregado === "sim" ? "current" : "future") });
+    steps.push({ label: "Entrega confirmada", when: d.entregueEm || null, por: d.entreguePor || null, state: d.entregueEm ? "done" : (d.saiuDocaEm ? "current" : "future") });
+    return steps;
+  }
+
+  function openTimelineModal(d) {
+    if (!timelineModal) return;
+    timelineModalTitle.textContent = "Linha do tempo · " + (d.emContratacao ? "Em contratação" : (d.placa || "—"));
+    timelineModalSub.textContent = (d.cliente || "—") + (d.rota ? " → " + d.rota : "") + (d.motorista ? " · " + d.motorista : "");
+    var steps = timelineSteps(d);
+    var html = "<div class=\"timeline-track\">";
+    steps.forEach(function (s) {
+      html += "<div class=\"timeline-step is-" + s.state + "\"><div class=\"dot-col\"><div class=\"dot\"></div><div class=\"line\"></div></div>" +
+        "<div class=\"info\"><div class=\"label\">" + esc(s.label) + "</div>" +
+        (s.when ? "<div class=\"when\">" + esc(formatIsoBr(s.when)) + (s.por ? " · " + esc(s.por) : "") + "</div>" : "<div class=\"when\">—</div>") +
+        "</div></div>";
+    });
+    html += "</div>";
+    timelineModalCanvas.innerHTML = html;
+    timelineModal.classList.add("show");
+  }
+  function closeTimelineModal() {
+    if (!timelineModal) return;
+    timelineModal.classList.remove("show");
+  }
+  if (timelineModalCloseBtn) timelineModalCloseBtn.addEventListener("click", closeTimelineModal);
+  if (timelineModal) timelineModal.addEventListener("click", function (ev) { if (ev.target === timelineModal) closeTimelineModal(); });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key === "Escape") { closeCommentModal(); closeTimelineModal(); closeCalendarModal(); }
+  });
 
   function formatDataBr(iso) {
     if (!iso || iso.indexOf("-") === -1) return "";
@@ -1543,7 +2523,7 @@
         if (k !== "|") counts[k] = (counts[k] || 0) + 1;
       });
       rotaUsoCount = counts;
-      renderAttention(allDocs);
+      renderMesaDemanda(allDocs);
       renderRotasDiarias(rotasFixasRaw);
     }, function (err) {
       showBanner("Conexão com os dados interrompida (" + (err && err.code ? err.code : "erro") + "). Recarregue a página.", true);
@@ -1586,32 +2566,156 @@
     rotasDiariasEmpty.style.display = rotasDiariasCache.length ? "none" : "block";
     rotasDiariasCache.forEach(function (r) {
       var usoN = rotaUsoCount[usoKey(r.cliente, r.rota)] || 0;
-      var row = document.createElement("label");
+      var row = document.createElement("div");
       row.className = "rotas-diarias-item";
-      var cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.value = r.id;
+      row.setAttribute("data-route-id", r.id);
       var info = document.createElement("div");
       info.className = "info";
       info.innerHTML =
         '<div class="campo"><span class="lbl">Cliente</span><span class="val">' + esc(r.cliente) + '</span></div>' +
         '<div class="campo"><span class="lbl">Rota</span><span class="val">' + esc(r.rota) + '</span></div>' +
         (r.tipologia ? '<div class="campo"><span class="lbl">Tipologia</span><span class="val">' + esc(r.tipologia) + '</span></div>' : '') +
-        '<span class="chip ' + (usoN > 0 ? "chip-ok" : "chip-muted") + '" title="Quantas vezes essa rota já apareceu na programação">' + usoN + (usoN === 1 ? "x usada" : "x usadas") + '</span>';
+        '<span class="chip ' + (usoN > 0 ? "chip-ok" : "chip-muted") + '" title="Quantas vezes essa rota já apareceu na programação">' + usoN + (usoN === 1 ? "x usada" : "x usadas") + '</span>' +
+        (r.observacao ? '<div class="rota-fixa-item-obs">💬 ' + esc(r.observacao) + '</div>' : '');
       var horaField = document.createElement("div");
       horaField.className = "hora-field";
       horaField.innerHTML = '<span class="lbl">Horário de carregamento</span>';
       var horaInput = document.createElement("input");
       horaInput.type = "time";
       horaInput.className = "rd-hora-input";
-      horaInput.addEventListener("click", function (ev) { ev.stopPropagation(); });
       horaField.appendChild(horaInput);
-      row.appendChild(cb);
+
+      var obsField = document.createElement("div");
+      obsField.className = "hora-field obs-field-inline";
+      obsField.innerHTML = '<span class="lbl">Observação (se for diferente da rota)</span>';
+      var obsInput = document.createElement("input");
+      obsInput.type = "text";
+      obsInput.className = "rd-obs-input";
+      obsInput.maxLength = 300;
+      obsInput.placeholder = r.observacao ? "Padrão: " + r.observacao : "Ex.: instrução específica pra essa data";
+      obsField.appendChild(obsInput);
+
+      var datasField = document.createElement("div");
+      datasField.className = "datas-field";
+      datasField.innerHTML = '<span class="lbl">Datas programadas</span>';
+      var datasBtn = document.createElement("button");
+      datasBtn.type = "button";
+      datasBtn.className = "datas-btn";
+      datasBtn.textContent = "📅 Escolher datas";
+      var datasSummary = document.createElement("span");
+      datasSummary.className = "datas-summary";
+      updateDatasSummary(r.id, datasSummary);
+      datasBtn.addEventListener("click", function () {
+        openCalendarModal(r.id, datasSummary, r.cliente + " · " + r.rota);
+      });
+      datasField.appendChild(datasBtn);
+      datasField.appendChild(datasSummary);
+
       row.appendChild(info);
       row.appendChild(horaField);
+      row.appendChild(obsField);
+      row.appendChild(datasField);
       rotasDiariasList.appendChild(row);
     });
   }
+
+  // ---------- Calendário multi-seleção (planejamento das rotas fixas) ----------
+  var calendarModal = document.getElementById("calendar-modal");
+  var calendarModalCanvas = document.getElementById("calendar-modal-canvas");
+  var calendarModalTitle = document.getElementById("calendar-modal-title");
+  var calendarModalCloseBtn = document.getElementById("calendar-modal-close");
+  var rotaDatasSelecionadas = {}; // routeId -> { "YYYY-MM-DD": true, ... }
+  var calendarActiveRouteId = null, calendarActiveSummaryEl = null, calendarViewYear, calendarViewMonth;
+  var MESES_PT = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  var DIAS_SEMANA_PT = ["D", "S", "T", "Q", "Q", "S", "S"];
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+  function isoDateYMD(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
+
+  function updateDatasSummary(routeId, el) {
+    if (!el) return;
+    var keys = Object.keys(rotaDatasSelecionadas[routeId] || {});
+    el.textContent = keys.length === 0 ? "Nenhuma data selecionada" : keys.length + (keys.length === 1 ? " data selecionada" : " datas selecionadas");
+    el.classList.toggle("has-datas", keys.length > 0);
+  }
+
+  function openCalendarModal(routeId, summaryEl, routeLabel) {
+    if (!calendarModal) return;
+    calendarActiveRouteId = routeId;
+    calendarActiveSummaryEl = summaryEl;
+    var today = new Date();
+    calendarViewYear = today.getFullYear();
+    calendarViewMonth = today.getMonth();
+    calendarModalTitle.textContent = "Escolher datas · " + (routeLabel || "");
+    renderCalendarGrid();
+    calendarModal.classList.add("show");
+  }
+  function closeCalendarModal() {
+    if (!calendarModal) return;
+    calendarModal.classList.remove("show");
+    calendarActiveRouteId = null; calendarActiveSummaryEl = null;
+  }
+
+  function renderCalendarGrid() {
+    if (!calendarActiveRouteId || !calendarModalCanvas) return;
+    var y = calendarViewYear, m = calendarViewMonth;
+    var sel = rotaDatasSelecionadas[calendarActiveRouteId] || {};
+    var firstDow = new Date(y, m, 1).getDay();
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var today = new Date();
+    var todayIso = isoDateYMD(today.getFullYear(), today.getMonth(), today.getDate());
+
+    var html = '<div class="cal-nav">' +
+      '<button type="button" class="cal-nav-btn" id="cal-prev">‹</button>' +
+      '<span class="cal-nav-label">' + esc(MESES_PT[m]) + ' de ' + y + '</span>' +
+      '<button type="button" class="cal-nav-btn" id="cal-next">›</button>' +
+      '</div>';
+    html += '<div class="cal-grid cal-weekdays">';
+    DIAS_SEMANA_PT.forEach(function (w) { html += '<div class="cal-weekday">' + w + '</div>'; });
+    html += '</div><div class="cal-grid">';
+    for (var i = 0; i < firstDow; i++) html += '<div class="cal-day is-blank"></div>';
+    for (var d = 1; d <= daysInMonth; d++) {
+      var iso = isoDateYMD(y, m, d);
+      var cls = "cal-day";
+      if (sel[iso]) cls += " is-selected";
+      if (iso === todayIso) cls += " is-today";
+      html += '<div class="' + cls + '" data-date="' + iso + '">' + d + '</div>';
+    }
+    html += '</div>';
+    var n = Object.keys(sel).length;
+    html += '<div class="cal-foot"><span class="cal-count" id="cal-count">' + n + (n === 1 ? ' data selecionada' : ' datas selecionadas') + '</span>' +
+      '<button type="button" class="btn-ghost" id="cal-limpar">Limpar seleção</button></div>';
+    calendarModalCanvas.innerHTML = html;
+
+    document.getElementById("cal-prev").addEventListener("click", function () {
+      calendarViewMonth--; if (calendarViewMonth < 0) { calendarViewMonth = 11; calendarViewYear--; }
+      renderCalendarGrid();
+    });
+    document.getElementById("cal-next").addEventListener("click", function () {
+      calendarViewMonth++; if (calendarViewMonth > 11) { calendarViewMonth = 0; calendarViewYear++; }
+      renderCalendarGrid();
+    });
+    document.getElementById("cal-limpar").addEventListener("click", function () {
+      rotaDatasSelecionadas[calendarActiveRouteId] = {};
+      renderCalendarGrid();
+      updateDatasSummary(calendarActiveRouteId, calendarActiveSummaryEl);
+    });
+    Array.prototype.forEach.call(calendarModalCanvas.querySelectorAll(".cal-day[data-date]"), function (cell) {
+      cell.addEventListener("click", function () {
+        var iso = cell.getAttribute("data-date");
+        if (!rotaDatasSelecionadas[calendarActiveRouteId]) rotaDatasSelecionadas[calendarActiveRouteId] = {};
+        var sel2 = rotaDatasSelecionadas[calendarActiveRouteId];
+        if (sel2[iso]) delete sel2[iso]; else sel2[iso] = true;
+        cell.classList.toggle("is-selected");
+        updateDatasSummary(calendarActiveRouteId, calendarActiveSummaryEl);
+        var countEl = document.getElementById("cal-count");
+        var n2 = Object.keys(sel2).length;
+        if (countEl) countEl.textContent = n2 + (n2 === 1 ? ' data selecionada' : ' datas selecionadas');
+      });
+    });
+  }
+  if (calendarModalCloseBtn) calendarModalCloseBtn.addEventListener("click", closeCalendarModal);
+  if (calendarModal) calendarModal.addEventListener("click", function (ev) { if (ev.target === calendarModal) closeCalendarModal(); });
 
   function subscribeRotasFixasDemo() {
     if (!db) return;
@@ -1624,44 +2728,103 @@
     });
   }
 
+  // ---------- Cadastro de nova rota fixa (com observação de quem inseriu) ----------
+  var rfCliente = document.getElementById("rf-cliente");
+  var rfRota = document.getElementById("rf-rota");
+  var rfTipologia = document.getElementById("rf-tipologia");
+  var rfObservacao = document.getElementById("rf-observacao");
+  var rfObservacaoCount = document.getElementById("rf-observacao-count");
+  var rfCadastrarBtn = document.getElementById("rf-cadastrar-btn");
+  var rfCadastrarMsg = document.getElementById("rf-cadastrar-msg");
+  if (rfObservacao) {
+    rfObservacao.addEventListener("input", function () {
+      rfObservacaoCount.textContent = rfObservacao.value.length + "/300";
+    });
+  }
+  if (rfCadastrarBtn) {
+    rfCadastrarBtn.addEventListener("click", function () {
+      rfCadastrarMsg.textContent = "";
+      var clienteVal = rfCliente.value.trim();
+      var rotaVal = rfRota.value.trim();
+      if (!clienteVal || !rotaVal) { rfCadastrarMsg.textContent = "Informe pelo menos cliente e rota."; return; }
+      if (!db) { showBanner("Sem conexão com o banco de dados agora.", true); return; }
+      rfCadastrarBtn.disabled = true;
+      db.ref("rotasFixas").push({
+        cliente: clienteVal,
+        rota: rotaVal,
+        tipologia: rfTipologia.value.trim(),
+        observacao: rfObservacao.value.trim().slice(0, 300),
+        criadoPor: getAutorNome(),
+        createdAt: new Date().toISOString()
+      }).then(function () {
+        rfCadastrarBtn.disabled = false;
+        rfCadastrarMsg.textContent = "Rota fixa cadastrada.";
+        rfCliente.value = ""; rfRota.value = ""; rfTipologia.value = ""; rfObservacao.value = "";
+        rfObservacaoCount.textContent = "0/300";
+      }).catch(function (err) {
+        rfCadastrarBtn.disabled = false;
+        rfCadastrarMsg.textContent = "Não deu pra cadastrar (" + (err && err.code ? err.code : "erro") + ").";
+      });
+    });
+  }
+
   document.getElementById("rotas-diarias-confirmar").addEventListener("click", function () {
     if (!db) { showBanner("Sem conexão com o banco de dados agora.", true); return; }
-    var checkedRows = Array.prototype.slice.call(rotasDiariasList.querySelectorAll('input[type="checkbox"]:checked'))
-      .map(function (cb) { return cb.closest(".rotas-diarias-item"); });
-    if (checkedRows.length === 0) { rotasDiariasMsg.textContent = "Marque pelo menos uma rota."; return; }
-    var dataProgramacao = currentDate;
-    var semHorario = checkedRows.filter(function (row) { return !row.querySelector(".rd-hora-input").value; });
-    if (semHorario.length) { rotasDiariasMsg.textContent = "Informe o horário de carregamento de todas as rotas marcadas."; return; }
+    var rows = Array.prototype.slice.call(rotasDiariasList.querySelectorAll(".rotas-diarias-item"));
+    var ativos = rows.map(function (row) {
+      var routeId = row.getAttribute("data-route-id");
+      var datas = Object.keys(rotaDatasSelecionadas[routeId] || {});
+      return {
+        row: row, routeId: routeId, datas: datas,
+        hora: row.querySelector(".rd-hora-input").value,
+        obs: row.querySelector(".rd-obs-input").value.trim()
+      };
+    }).filter(function (x) { return x.datas.length > 0; });
+
+    if (ativos.length === 0) { rotasDiariasMsg.textContent = "Escolha pelo menos uma data em alguma rota, usando o calendário."; return; }
+    var semHorario = ativos.filter(function (x) { return !x.hora; });
+    if (semHorario.length) { rotasDiariasMsg.textContent = "Informe o horário de carregamento das rotas com datas selecionadas."; return; }
+
     var btn = document.getElementById("rotas-diarias-confirmar");
     btn.disabled = true;
     var now = new Date().toISOString();
-    var writes = checkedRows.map(function (row) {
-      var cb = row.querySelector('input[type="checkbox"]');
-      var r = rotasDiariasCache.filter(function (x) { return x.id === cb.value; })[0];
-      if (!r) return Promise.resolve();
-      return db.ref("veiculos").push({
-        data: dataProgramacao,
-        hora: row.querySelector(".rd-hora-input").value,
-        cliente: r.cliente || "",
-        rota: r.rota || "",
-        tipologia: r.tipologia || "",
-        placa: "",
-        motorista: "",
-        telefone: "",
-        carregado: "nao",
-        carregadoEm: "",
-        liberacaoGR: "nao",
-        emContratacao: true,
-        observacao: "Inserida via Rotas fixas diárias",
-        createdAt: now,
-        updatedAt: now
+    var autor = getAutorNome();
+    var totalDatas = 0;
+    var writes = [];
+    ativos.forEach(function (x) {
+      var r = rotasDiariasCache.filter(function (rr) { return rr.id === x.routeId; })[0];
+      if (!r) return;
+      x.datas.forEach(function (iso) {
+        totalDatas++;
+        writes.push(db.ref("veiculos").push({
+          data: iso,
+          hora: x.hora,
+          cliente: r.cliente || "",
+          rota: r.rota || "",
+          tipologia: r.tipologia || "",
+          placa: "",
+          motorista: "",
+          telefone: "",
+          carregado: "nao",
+          carregadoEm: "",
+          liberacaoGR: "nao",
+          emContratacao: true,
+          observacao: x.obs ? x.obs : (r.observacao ? r.observacao : "Inserida via Rotas fixas diárias"),
+          criadoPor: autor,
+          createdAt: now,
+          updatedAt: now,
+          atualizadoPor: autor
+        }));
       });
     });
     Promise.all(writes).then(function () {
-      rotasDiariasMsg.textContent = checkedRows.length + " rota" + (checkedRows.length === 1 ? "" : "s") + " inserida" + (checkedRows.length === 1 ? "" : "s") + " na programação de " + formatDataBr(dataProgramacao) + ".";
-      checkedRows.forEach(function (row) {
-        row.querySelector('input[type="checkbox"]').checked = false;
-        row.querySelector(".rd-hora-input").value = "";
+      rotasDiariasMsg.textContent = totalDatas + (totalDatas === 1 ? " data inserida" : " datas inseridas") +
+        " na programação, em " + ativos.length + (ativos.length === 1 ? " rota" : " rotas") + ".";
+      ativos.forEach(function (x) {
+        rotaDatasSelecionadas[x.routeId] = {};
+        updateDatasSummary(x.routeId, x.row.querySelector(".datas-summary"));
+        x.row.querySelector(".rd-hora-input").value = "";
+        x.row.querySelector(".rd-obs-input").value = "";
       });
       btn.disabled = false;
     }).catch(function (err) {
@@ -1670,16 +2833,25 @@
     });
   });
 
-  // ---------- Usuários (prévia — sem login real, ver banner da aba) ----------
+  // ---------- Usuários (login real via Firebase Authentication — aba só do dono do sistema) ----------
   var ROLE_LABELS = {
     administrador: "Administrador", supervisor: "Supervisor",
-    operacao: "Operação", mesa: "Mesa de Frete", cliente: "Cliente"
+    operacao: "Operação", gr: "GR", mesa: "Mesa de Frete", cliente: "Cliente"
+  };
+  var PERM_LABELS = {
+    cockpit: "Cockpit", mesafrete: "Mesa de Frete", torre: "Torre de Controle", rotasfixas: "Rotas fixas"
   };
   var userForm = document.getElementById("user-form");
   var uNome = document.getElementById("u-nome");
   var uEmail = document.getElementById("u-email");
   var uPerfil = document.getElementById("u-perfil");
+  var uClienteWrap = document.getElementById("u-cliente-wrap");
+  var uCliente = document.getElementById("u-cliente");
   var uAtivo = document.getElementById("u-ativo");
+  var uPermCockpit = document.getElementById("u-perm-cockpit");
+  var uPermMesafrete = document.getElementById("u-perm-mesafrete");
+  var uPermTorre = document.getElementById("u-perm-torre");
+  var uPermRotasfixas = document.getElementById("u-perm-rotasfixas");
   var uSubmit = document.getElementById("u-submit");
   var uCancel = document.getElementById("u-cancel");
   var uMsg = document.getElementById("u-msg");
@@ -1687,11 +2859,33 @@
   var usuariosEmpty = document.getElementById("usuarios-empty");
   var editingUserId = null;
 
+  function toggleUClienteWrap() {
+    if (uClienteWrap) uClienteWrap.style.display = uPerfil.value === "cliente" ? "" : "none";
+  }
+  if (uPerfil) uPerfil.addEventListener("change", toggleUClienteWrap);
+
+  function formatValidadeBr(iso) {
+    if (!iso) return "—";
+    var d2 = new Date(iso);
+    if (isNaN(d2.getTime())) return "—";
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    return pad(d2.getDate()) + "/" + pad(d2.getMonth() + 1) + "/" + d2.getFullYear();
+  }
+
+  function validadePlus12Meses() {
+    var d2 = new Date();
+    d2.setFullYear(d2.getFullYear() + 1);
+    return d2.toISOString();
+  }
+
   function resetUserForm() {
     editingUserId = null;
     userForm.reset();
     uAtivo.checked = true;
+    uEmail.readOnly = false;
+    toggleUClienteWrap();
     uSubmit.textContent = "Salvar usuário";
+    uSubmit.disabled = false;
     uCancel.style.display = "none";
     uMsg.textContent = "";
   }
@@ -1700,8 +2894,16 @@
     editingUserId = u.id;
     uNome.value = u.nome || "";
     uEmail.value = u.email || "";
+    uEmail.readOnly = true; // o e-mail já está ligado à conta de login — pra trocar, desative e crie outro usuário
     uPerfil.value = u.perfil || "operacao";
+    toggleUClienteWrap();
+    if (uCliente && u.clienteVinculado) uCliente.value = u.clienteVinculado;
     uAtivo.checked = u.ativo !== false;
+    var perm = u.permissoes || {};
+    if (uPermCockpit) uPermCockpit.checked = !!perm.cockpit;
+    if (uPermMesafrete) uPermMesafrete.checked = !!perm.mesafrete;
+    if (uPermTorre) uPermTorre.checked = !!perm.torre;
+    if (uPermRotasfixas) uPermRotasfixas.checked = !!perm.rotasfixas;
     uSubmit.textContent = "Salvar alterações";
     uCancel.style.display = "";
     uMsg.textContent = "";
@@ -1710,34 +2912,128 @@
 
   uCancel.addEventListener("click", resetUserForm);
 
+  // Cria a conta de autenticação (Firebase Authentication) num app Firebase secundário, pra não
+  // derrubar a sessão logada de quem está cadastrando — e manda um e-mail de verdade com link
+  // pra pessoa criar a própria senha (login = e-mail dela, senha = a que ela definir no link).
+  function criarContaEConvidar(email) {
+    var secName = "invite-" + Date.now() + "-" + Math.floor(Math.random() * 1e6);
+    var secApp = firebase.initializeApp(firebaseConfig, secName);
+    var senhaTemp = "Tmp#" + Math.random().toString(36).slice(2, 10) + Date.now();
+    return secApp.auth().createUserWithEmailAndPassword(email, senhaTemp)
+      .then(function (cred) {
+        return secApp.auth().sendPasswordResetEmail(email).then(function () { return cred.user.uid; });
+      })
+      .catch(function (err) {
+        if (err && err.code === "auth/email-already-in-use") return "ja-existe";
+        throw err;
+      })
+      .finally(function () {
+        secApp.auth().signOut().catch(function () {});
+        secApp.delete().catch(function () {});
+      });
+  }
+
   userForm.addEventListener("submit", function (ev) {
     ev.preventDefault();
     if (!db) { uMsg.textContent = "Sem conexão com o banco de dados agora."; return; }
+    var nome = uNome.value.trim();
+    var email = uEmail.value.trim();
+    var perfil = uPerfil.value;
+    if (!nome || !email) { uMsg.textContent = "Preencha nome e e-mail."; return; }
+    var autor = getAutorNome();
+    var now = new Date().toISOString();
     var payload = {
-      nome: uNome.value.trim(),
-      email: uEmail.value.trim(),
-      perfil: uPerfil.value,
+      nome: nome,
+      email: email,
+      emailLower: email.toLowerCase(),
+      perfil: perfil,
+      clienteVinculado: perfil === "cliente" && uCliente ? uCliente.value : null,
       ativo: uAtivo.checked,
-      updatedAt: new Date().toISOString()
+      permissoes: {
+        cockpit: !!(uPermCockpit && uPermCockpit.checked),
+        mesafrete: !!(uPermMesafrete && uPermMesafrete.checked),
+        torre: !!(uPermTorre && uPermTorre.checked),
+        rotasfixas: !!(uPermRotasfixas && uPermRotasfixas.checked)
+      },
+      atualizadoPor: autor,
+      updatedAt: now
     };
-    if (!payload.nome || !payload.email) { uMsg.textContent = "Preencha nome e e-mail."; return; }
     uSubmit.disabled = true;
-    var op = editingUserId
-      ? db.ref("usuariosDemo/" + editingUserId).update(payload)
-      : db.ref("usuariosDemo").push(Object.assign({ createdAt: payload.updatedAt }, payload));
-    op.then(function () {
-      uSubmit.disabled = false;
-      resetUserForm();
-    }).catch(function (err) {
-      uSubmit.disabled = false;
-      uMsg.textContent = "Não deu pra salvar (" + (err && err.code ? err.code : "erro") + ").";
-    });
+    uMsg.textContent = "";
+    if (editingUserId) {
+      db.ref("usuariosDemo/" + editingUserId).update(payload).then(function () {
+        uSubmit.disabled = false;
+        resetUserForm();
+      }).catch(function (err) {
+        uSubmit.disabled = false;
+        uMsg.textContent = "Não deu pra salvar (" + (err && err.code ? err.code : "erro") + ").";
+      });
+    } else {
+      uMsg.textContent = "Criando acesso e enviando e-mail de convite...";
+      criarContaEConvidar(email).then(function (authUid) {
+        payload.criadoPor = autor;
+        payload.createdAt = now;
+        payload.validoAte = validadePlus12Meses();
+        payload.authUid = authUid === "ja-existe" ? null : authUid;
+        return db.ref("usuariosDemo").push(payload).then(function () {
+          uSubmit.disabled = false;
+          resetUserForm();
+          uMsg.textContent = "";
+          showBanner(authUid === "ja-existe"
+            ? "Usuário cadastrado. Já existia uma conta de login com esse e-mail — a pessoa usa a senha que já tinha (ou \"Esqueci minha senha\" na tela de entrada)."
+            : "Usuário cadastrado — enviamos um e-mail pra " + email + " com o link pra criar a senha e acessar. Acesso válido até " + formatValidadeBr(payload.validoAte) + ".");
+        });
+      }).catch(function (err) {
+        uSubmit.disabled = false;
+        uMsg.textContent = "Não deu pra criar o acesso (" + (err && err.code ? err.code : "erro") + ").";
+      });
+    }
   });
+
+  function renovarUsuario(u) {
+    if (!db) return;
+    var novaValidade = validadePlus12Meses();
+    var autor = getAutorNome();
+    db.ref("usuariosDemo/" + u.id).update({
+      validoAte: novaValidade,
+      renovadoPor: autor,
+      renovadoEm: new Date().toISOString()
+    }).then(function () {
+      if (auth && u.email) {
+        auth.sendPasswordResetEmail(u.email).catch(function () {});
+      }
+      showBanner("Acesso de " + (u.nome || u.email) + " renovado até " + formatValidadeBr(novaValidade) + " — enviamos um novo e-mail pra validar a senha.");
+    }).catch(function (err) {
+      showBanner("Não deu pra renovar (" + (err && err.code ? err.code : "erro") + ").", true);
+    });
+  }
+
+  function alternarAtivoUsuario(u) {
+    if (!db) return;
+    var autor = getAutorNome();
+    var novoAtivo = u.ativo === false;
+    db.ref("usuariosDemo/" + u.id).update({
+      ativo: novoAtivo,
+      ativoPor: autor,
+      ativoAlteradoEm: new Date().toISOString()
+    }).catch(function (err) {
+      showBanner("Não deu pra atualizar o usuário (" + (err && err.code ? err.code : "erro") + ").", true);
+    });
+  }
+
+  function permSummaryHtml(u) {
+    var perm = u.permissoes || {};
+    var chaves = Object.keys(PERM_LABELS).filter(function (k) { return perm[k]; });
+    if (u.perfil === "administrador" || u.perfil === "supervisor") return '<span class="perm-summary"><span class="none">tudo (perfil)</span></span>';
+    if (!chaves.length) return '<span class="perm-summary"><span class="none">nenhuma ainda</span></span>';
+    return '<span class="perm-summary">' + chaves.map(function (k) { return esc(PERM_LABELS[k]); }).join(", ") + "</span>";
+  }
 
   function renderUsuarios(list) {
     list.sort(function (a, b) { return (a.nome || "").localeCompare(b.nome || ""); });
     usuariosBody.innerHTML = "";
     usuariosEmpty.style.display = list.length ? "none" : "block";
+    var agoraIso = new Date().toISOString();
     list.forEach(function (u) {
       var tr = document.createElement("tr");
 
@@ -1745,11 +3041,18 @@
       var tdEmail = document.createElement("td"); tdEmail.textContent = u.email || "—"; tr.appendChild(tdEmail);
       var tdPerfil = document.createElement("td"); tdPerfil.textContent = ROLE_LABELS[u.perfil] || u.perfil || "—"; tr.appendChild(tdPerfil);
 
+      var tdPerm = document.createElement("td"); tdPerm.innerHTML = permSummaryHtml(u); tr.appendChild(tdPerm);
+
       var tdStatus = document.createElement("td");
       tdStatus.innerHTML = u.ativo !== false
         ? '<span class="status-pill st-ok">Ativo</span>'
-        : '<span class="status-pill st-atrasado">Inativo</span>';
+        : '<span class="status-pill st-inativo">Inativo</span>';
       tr.appendChild(tdStatus);
+
+      var tdValidade = document.createElement("td");
+      var vencida = u.validoAte && u.validoAte < agoraIso;
+      tdValidade.innerHTML = '<span class="' + (vencida ? "validade-vencida" : "") + '">' + esc(formatValidadeBr(u.validoAte)) + (vencida ? " · vencido" : "") + "</span>";
+      tr.appendChild(tdValidade);
 
       var tdActions = document.createElement("td");
       var actions = document.createElement("div"); actions.className = "row-actions";
@@ -1757,22 +3060,18 @@
       editBtn.addEventListener("click", function () { startEditUser(u); });
       actions.appendChild(editBtn);
 
-      var delBtn = document.createElement("button"); delBtn.className = "icon-btn danger"; delBtn.title = "Excluir"; delBtn.textContent = "✕";
-      var confirming = false, confirmTimer = null;
-      delBtn.addEventListener("click", function () {
-        if (!confirming) {
-          confirming = true;
-          delBtn.textContent = "Confirmar";
-          delBtn.classList.add("confirming");
-          confirmTimer = setTimeout(function () {
-            confirming = false; delBtn.textContent = "✕"; delBtn.classList.remove("confirming");
-          }, 4000);
-        } else {
-          clearTimeout(confirmTimer);
-          if (db) db.ref("usuariosDemo/" + u.id).remove();
-        }
-      });
-      actions.appendChild(delBtn);
+      var renovarBtn = document.createElement("button");
+      renovarBtn.className = "icon-btn"; renovarBtn.title = "Renovar mais 12 meses"; renovarBtn.textContent = "⟳";
+      renovarBtn.addEventListener("click", function () { renovarUsuario(u); });
+      actions.appendChild(renovarBtn);
+
+      var toggleBtn = document.createElement("button");
+      toggleBtn.className = "icon-btn" + (u.ativo === false ? "" : " danger");
+      toggleBtn.title = u.ativo === false ? "Reativar usuário" : "Desativar usuário (nunca é excluído)";
+      toggleBtn.textContent = u.ativo === false ? "✓" : "⏻";
+      toggleBtn.addEventListener("click", function () { alternarAtivoUsuario(u); });
+      actions.appendChild(toggleBtn);
+
       tdActions.appendChild(actions);
       tr.appendChild(tdActions);
 
@@ -2156,6 +3455,126 @@
     );
   }
 
+  // ---------- Comentários da Torre de Controle (apenas time operacional) ----------
+  var db2 = null;
+  try { if (typeof firebase !== "undefined" && firebase.apps && firebase.apps.length) db2 = firebase.database(); } catch (e) {}
+  var torreComentariosCache = {};
+
+  function sanitizePlacaKey(placa) {
+    return String(placa || "").trim().toUpperCase().replace(/[.#$\[\]\/]/g, "_");
+  }
+  function torreAutorNome() {
+    var el = document.getElementById("autor-nome");
+    var v = el ? el.value.trim() : "";
+    return v || "Usuário não identificado";
+  }
+  function torreFormatIsoBr(iso) {
+    if (!iso) return "";
+    var d2 = new Date(iso);
+    if (isNaN(d2.getTime())) return iso;
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    return pad(d2.getDate()) + "/" + pad(d2.getMonth() + 1) + "/" + d2.getFullYear() + " " + pad(d2.getHours()) + ":" + pad(d2.getMinutes());
+  }
+  function torreCommentsList(placa) {
+    var key = sanitizePlacaKey(placa);
+    var obj = torreComentariosCache[key] || {};
+    var list = Object.keys(obj).map(function (k) { return Object.assign({ id: k }, obj[k]); });
+    list.sort(function (a, b) { return (a.ts || "").localeCompare(b.ts || ""); });
+    return list;
+  }
+  function torreCommentPreviewHtml(placa) {
+    var list = torreCommentsList(placa);
+    if (!list.length) return '<span class="comment-preview is-empty">Sem comentários</span>';
+    var last = list[list.length - 1];
+    return '<span class="comment-preview">' + tiEsc(last.texto) + '</span>' +
+      '<div class="comment-meta">' + tiEsc(last.usuario || "—") + ' · ' + tiEsc(torreFormatIsoBr(last.ts)) +
+      (list.length > 1 ? '<span class="comment-count">' + list.length + '</span>' : '') + '</div>';
+  }
+  function subscribeTorreComentarios() {
+    if (!db2) return;
+    db2.ref("torreComentarios").on("value", function (snapshot) {
+      torreComentariosCache = snapshot.val() || {};
+      renderTorreDemo();
+    });
+  }
+  function torreShowBanner(text, isWarn) {
+    var b = document.getElementById("banner");
+    if (!b) return;
+    b.textContent = text;
+    b.className = "banner show" + (isWarn ? " warn-banner" : "");
+  }
+
+  var torreCommentModal = document.getElementById("torre-comment-modal");
+  var torreCommentModalCanvas = document.getElementById("torre-comment-modal-canvas");
+  var torreCommentModalTitle = document.getElementById("torre-comment-modal-title");
+  var torreCommentModalSub = document.getElementById("torre-comment-modal-sub");
+  var torreCommentModalCloseBtn = document.getElementById("torre-comment-modal-close");
+  var torreCommentInput = document.getElementById("torre-comment-input");
+  var torreCommentCharcount = document.getElementById("torre-comment-charcount");
+  var torreCommentSubmitBtn = document.getElementById("torre-comment-submit");
+  var torreCommentActivePlaca = null;
+
+  function renderTorreCommentThread() {
+    if (!torreCommentActivePlaca || !torreCommentModalCanvas) return;
+    var list = torreCommentsList(torreCommentActivePlaca);
+    if (!list.length) {
+      torreCommentModalCanvas.innerHTML = '<div class="comment-empty-state">Nenhum comentário ainda.</div>';
+      return;
+    }
+    var html = "";
+    list.forEach(function (c) {
+      html += '<div class="comment-thread-item"><div class="txt">' + tiEsc(c.texto) + '</div>' +
+        '<div class="meta">' + tiEsc(c.usuario || "—") + ' · ' + tiEsc(torreFormatIsoBr(c.ts)) + '</div></div>';
+    });
+    torreCommentModalCanvas.innerHTML = html;
+    torreCommentModalCanvas.scrollTop = torreCommentModalCanvas.scrollHeight;
+  }
+
+  function openTorreCommentModal(placa) {
+    if (!torreCommentModal) return;
+    torreCommentActivePlaca = placa;
+    var d = TORRE_DEMO.filter(function (x) { return x.placa === placa; })[0];
+    torreCommentModalTitle.textContent = "Comentários · " + (placa || "—");
+    torreCommentModalSub.textContent = (d ? tiEsc(d.cliente || "—") + (d.rota ? " → " + tiEsc(d.rota) : "") : "") + " · uso interno (time operacional)";
+    torreCommentInput.value = "";
+    torreCommentCharcount.textContent = "0/250";
+    renderTorreCommentThread();
+    torreCommentModal.classList.add("show");
+  }
+  function closeTorreCommentModal() {
+    if (!torreCommentModal) return;
+    torreCommentModal.classList.remove("show");
+    torreCommentActivePlaca = null;
+  }
+  if (torreCommentModalCloseBtn) torreCommentModalCloseBtn.addEventListener("click", closeTorreCommentModal);
+  if (torreCommentModal) torreCommentModal.addEventListener("click", function (ev) { if (ev.target === torreCommentModal) closeTorreCommentModal(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeTorreCommentModal(); });
+  if (torreCommentInput) {
+    torreCommentInput.addEventListener("input", function () {
+      torreCommentCharcount.textContent = torreCommentInput.value.length + "/250";
+    });
+  }
+  if (torreCommentSubmitBtn) {
+    torreCommentSubmitBtn.addEventListener("click", function () {
+      var texto = torreCommentInput.value.trim();
+      if (!texto || !torreCommentActivePlaca) return;
+      if (!db2) { torreShowBanner("Sem conexão com o banco de dados agora.", true); return; }
+      torreCommentSubmitBtn.disabled = true;
+      var key = sanitizePlacaKey(torreCommentActivePlaca);
+      db2.ref("torreComentarios/" + key).push({
+        texto: texto.slice(0, 250), usuario: torreAutorNome(), ts: new Date().toISOString()
+      }).then(function () {
+        torreCommentSubmitBtn.disabled = false;
+        torreCommentInput.value = "";
+        torreCommentCharcount.textContent = "0/250";
+      }).catch(function (err) {
+        torreCommentSubmitBtn.disabled = false;
+        torreShowBanner("Não deu pra salvar o comentário (" + (err && err.code ? err.code : "erro") + ").", true);
+      });
+    });
+  }
+  subscribeTorreComentarios();
+
   // ---------- Modal com mapa interativo (Leaflet, aberto sob demanda) ----------
   var mapModal = document.getElementById("map-modal");
   var mapModalCanvas = document.getElementById("map-modal-canvas");
@@ -2201,6 +3620,11 @@
         var placa = thumb.getAttribute("data-placa");
         var d = TORRE_DEMO.filter(function (x) { return x.placa === placa; })[0];
         if (d) openMapModal(d);
+        return;
+      }
+      var comentarioCell = ev.target.closest ? ev.target.closest(".comment-cell[data-placa-comentario]") : null;
+      if (comentarioCell) {
+        openTorreCommentModal(comentarioCell.getAttribute("data-placa-comentario"));
       }
     });
   }
@@ -2243,6 +3667,8 @@
       }
       acaoBtns += '<button class="acao-icon-btn" type="button" title="' + tiEsc(d.fonte) + '">\u260E</button>';
 
+      var comentarioHtml = torreCommentPreviewHtml(d.placa);
+
       return (
         "<tr" + rowClass + ">" +
         "<td>" + lampHtml + "</td>" +
@@ -2254,6 +3680,7 @@
         '<td><div class="progress-cell"><div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;"></div></div><span class="progress-pct">' + pct + '%</span></div></td>' +
         "<td>" + previsao + "</td>" +
         '<td><span class="status-pill ' + statusCls + '">' + statusTxt + "</span></td>" +
+        '<td class="only-torre-op comment-cell gate-torre" data-placa-comentario="' + pEsc + '">' + comentarioHtml + "</td>" +
         '<td class="acao-cell">' + acaoBtns + "</td>" +
         "</tr>"
       );
