@@ -833,6 +833,14 @@
     .validade-vencida { color: var(--vermelho-ink); font-weight: 600; }
     .perm-summary { font-size: 11.5px; color: var(--ink-muted); }
     .perm-summary .none { color: var(--ink-faint); font-style: italic; }
+    .usuarios-bulkbar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 10px 18px; margin: 0 18px 12px; background: var(--accent-bg); border: 1px solid var(--brand-orange-light);
+      border-radius: 10px; font-size: 12.5px; color: var(--ink);
+    }
+    .usuarios-bulkbar .btn-primary { font-size: 12.5px; padding: 7px 14px; }
+    #usuarios-select-all { cursor: pointer; }
+    .usuarios-row-check { cursor: pointer; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -1290,9 +1298,14 @@
       <div class="board-head">
         <p class="section-title">Usuários cadastrados<span class="live-dot" aria-hidden="true"></span></p>
       </div>
+      <div class="usuarios-bulkbar" id="usuarios-bulkbar" style="display:none;">
+        <span id="usuarios-selected-count">0 selecionados</span>
+        <button type="button" class="btn-primary" id="usuarios-reenviar-lote">✉ Reenviar e-mail de validação</button>
+        <span class="form-msg" id="usuarios-lote-msg"></span>
+      </div>
       <div class="table-scroll">
         <table class="torre-table">
-          <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Permissões</th><th>Status</th><th>Validade</th><th>Ações</th></tr></thead>
+          <thead><tr><th><input type="checkbox" id="usuarios-select-all" title="Selecionar todos"></th><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Permissões</th><th>Status</th><th>Validade</th><th>Ações</th></tr></thead>
           <tbody id="usuarios-body"></tbody>
         </table>
       </div>
@@ -2857,7 +2870,35 @@
   var uMsg = document.getElementById("u-msg");
   var usuariosBody = document.getElementById("usuarios-body");
   var usuariosEmpty = document.getElementById("usuarios-empty");
+  var usuariosSelectAll = document.getElementById("usuarios-select-all");
+  var usuariosBulkbar = document.getElementById("usuarios-bulkbar");
+  var usuariosSelectedCount = document.getElementById("usuarios-selected-count");
+  var usuariosReenviarLoteBtn = document.getElementById("usuarios-reenviar-lote");
+  var usuariosLoteMsg = document.getElementById("usuarios-lote-msg");
+  var usuariosSelecionados = {};
+  var usuariosListaAtual = [];
   var editingUserId = null;
+
+  function atualizarBulkbar() {
+    var ids = Object.keys(usuariosSelecionados).filter(function (id) { return usuariosSelecionados[id]; });
+    if (usuariosBulkbar) usuariosBulkbar.style.display = ids.length ? "flex" : "none";
+    if (usuariosSelectedCount) usuariosSelectedCount.textContent = ids.length + (ids.length === 1 ? " selecionado" : " selecionados");
+    if (usuariosSelectAll) {
+      var totalVisivel = usuariosListaAtual.length;
+      usuariosSelectAll.checked = totalVisivel > 0 && ids.length === totalVisivel;
+      usuariosSelectAll.indeterminate = ids.length > 0 && ids.length < totalVisivel;
+    }
+  }
+
+  if (usuariosSelectAll) {
+    usuariosSelectAll.addEventListener("change", function () {
+      usuariosSelecionados = {};
+      if (usuariosSelectAll.checked) {
+        usuariosListaAtual.forEach(function (u) { usuariosSelecionados[u.id] = true; });
+      }
+      renderUsuarios(usuariosListaAtual);
+    });
+  }
 
   function toggleUClienteWrap() {
     if (uClienteWrap) uClienteWrap.style.display = uPerfil.value === "cliente" ? "" : "none";
@@ -3021,6 +3062,55 @@
     });
   }
 
+  // Reenvia só o e-mail de validação (link pra criar/redefinir a senha), sem mexer na validade
+  // de 12 meses nem nas permissões — pra quando o e-mail se perdeu ou a pessoa não achou.
+  function reenviarEmailValidacao(u) {
+    if (!auth || !u.email) return Promise.reject(new Error("sem e-mail"));
+    var autor = getAutorNome();
+    return auth.sendPasswordResetEmail(u.email).then(function () {
+      if (db && u.id) {
+        db.ref("usuariosDemo/" + u.id).update({
+          reenvioPor: autor,
+          reenvioEm: new Date().toISOString()
+        }).catch(function () {});
+      }
+    });
+  }
+
+  function reenviarEmailValidacaoUnico(u) {
+    reenviarEmailValidacao(u).then(function () {
+      showBanner("E-mail de validação reenviado pra " + (u.nome || u.email) + " (" + u.email + ").");
+    }).catch(function (err) {
+      showBanner("Não deu pra reenviar pra " + (u.nome || u.email) + " (" + (err && err.code ? err.code : "erro") + ").", true);
+    });
+  }
+
+  if (usuariosReenviarLoteBtn) {
+    usuariosReenviarLoteBtn.addEventListener("click", function () {
+      var ids = Object.keys(usuariosSelecionados).filter(function (id) { return usuariosSelecionados[id]; });
+      var alvos = usuariosListaAtual.filter(function (u) { return ids.indexOf(u.id) !== -1; });
+      if (!alvos.length) return;
+      usuariosReenviarLoteBtn.disabled = true;
+      if (usuariosLoteMsg) usuariosLoteMsg.textContent = "Enviando 1 de " + alvos.length + "...";
+      var ok = 0, falha = 0, i = 0;
+      function proximo() {
+        if (i >= alvos.length) {
+          usuariosReenviarLoteBtn.disabled = false;
+          if (usuariosLoteMsg) usuariosLoteMsg.textContent = "";
+          showBanner("E-mail de validação reenviado pra " + ok + " de " + alvos.length + " usuário(s)" + (falha ? " — " + falha + " falharam." : "."), falha > 0);
+          return;
+        }
+        var u = alvos[i];
+        i++;
+        if (usuariosLoteMsg) usuariosLoteMsg.textContent = "Enviando " + i + " de " + alvos.length + "...";
+        reenviarEmailValidacao(u).then(function () { ok++; }).catch(function () { falha++; }).then(function () {
+          setTimeout(proximo, 350); // espaça os envios pra não esbarrar no limite de requisições do Firebase
+        });
+      }
+      proximo();
+    });
+  }
+
   function permSummaryHtml(u) {
     var perm = u.permissoes || {};
     var chaves = Object.keys(PERM_LABELS).filter(function (k) { return perm[k]; });
@@ -3031,11 +3121,28 @@
 
   function renderUsuarios(list) {
     list.sort(function (a, b) { return (a.nome || "").localeCompare(b.nome || ""); });
+    usuariosListaAtual = list;
+    // limpa da seleção quem não existe mais na lista (ex.: filtro/atualização)
+    var idsAtuais = {};
+    list.forEach(function (u) { idsAtuais[u.id] = true; });
+    Object.keys(usuariosSelecionados).forEach(function (id) { if (!idsAtuais[id]) delete usuariosSelecionados[id]; });
     usuariosBody.innerHTML = "";
     usuariosEmpty.style.display = list.length ? "none" : "block";
     var agoraIso = new Date().toISOString();
     list.forEach(function (u) {
       var tr = document.createElement("tr");
+
+      var tdCheck = document.createElement("td");
+      var checkInp = document.createElement("input");
+      checkInp.type = "checkbox"; checkInp.className = "usuarios-row-check";
+      checkInp.checked = !!usuariosSelecionados[u.id];
+      checkInp.addEventListener("change", function () {
+        if (checkInp.checked) usuariosSelecionados[u.id] = true;
+        else delete usuariosSelecionados[u.id];
+        atualizarBulkbar();
+      });
+      tdCheck.appendChild(checkInp);
+      tr.appendChild(tdCheck);
 
       var tdNome = document.createElement("td"); tdNome.textContent = u.nome || "—"; tr.appendChild(tdNome);
       var tdEmail = document.createElement("td"); tdEmail.textContent = u.email || "—"; tr.appendChild(tdEmail);
@@ -3065,6 +3172,11 @@
       renovarBtn.addEventListener("click", function () { renovarUsuario(u); });
       actions.appendChild(renovarBtn);
 
+      var reenviarBtn = document.createElement("button");
+      reenviarBtn.className = "icon-btn"; reenviarBtn.title = "Reenviar e-mail de validação"; reenviarBtn.textContent = "✉";
+      reenviarBtn.addEventListener("click", function () { reenviarEmailValidacaoUnico(u); });
+      actions.appendChild(reenviarBtn);
+
       var toggleBtn = document.createElement("button");
       toggleBtn.className = "icon-btn" + (u.ativo === false ? "" : " danger");
       toggleBtn.title = u.ativo === false ? "Reativar usuário" : "Desativar usuário (nunca é excluído)";
@@ -3077,6 +3189,7 @@
 
       usuariosBody.appendChild(tr);
     });
+    atualizarBulkbar();
   }
 
   function subscribeUsuariosDemo() {
