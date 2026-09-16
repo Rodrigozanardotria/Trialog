@@ -934,7 +934,6 @@
         <label for="date-picker">Programação de</label>
         <input type="date" id="date-picker">
       </div>
-      <button class="btn-new only-edit" id="btn-goto-form">+ Novo veículo</button>
     </div>
 
     <div class="view-locked-note">👁 Perfil Cliente — modo assistir, sem edição.</div>
@@ -1252,6 +1251,11 @@
         <div class="field">
           <label for="u-email">E-mail</label>
           <input type="email" id="u-email" required>
+        </div>
+        <div class="field">
+          <label for="u-senha-provisoria">Senha provisória (opcional)</label>
+          <input type="text" id="u-senha-provisoria" placeholder="Deixe em branco pra mandar convite por e-mail" minlength="6">
+          <div class="rota-fixa-charcount">Se preencher, a conta já é criada com essa senha — passe ela direto pra pessoa (WhatsApp, por ex.). Se deixar em branco, tentamos mandar um e-mail com o link.</div>
         </div>
         <div class="field">
           <label for="u-perfil">Perfil</label>
@@ -1572,7 +1576,6 @@
   tabIntegracao.addEventListener("click", function () { activateTab("integracao"); });
   tabResumo.addEventListener("click", function () { activateTab("resumo"); });
   tabUsuarios.addEventListener("click", function () { activateTab("usuarios"); });
-  document.getElementById("btn-goto-form").addEventListener("click", function () { startNewEntry(); activateTab("form"); });
   document.getElementById("empty-cta").addEventListener("click", function () { startNewEntry(); activateTab("form"); });
 
   // ---------- Perfil ativo (preview de controle de acesso por UI) ----------
@@ -2857,6 +2860,7 @@
   var userForm = document.getElementById("user-form");
   var uNome = document.getElementById("u-nome");
   var uEmail = document.getElementById("u-email");
+  var uSenhaProvisoria = document.getElementById("u-senha-provisoria");
   var uPerfil = document.getElementById("u-perfil");
   var uClienteWrap = document.getElementById("u-cliente-wrap");
   var uCliente = document.getElementById("u-cliente");
@@ -2956,12 +2960,15 @@
   // Cria a conta de autenticação (Firebase Authentication) num app Firebase secundário, pra não
   // derrubar a sessão logada de quem está cadastrando — e manda um e-mail de verdade com link
   // pra pessoa criar a própria senha (login = e-mail dela, senha = a que ela definir no link).
-  function criarContaEConvidar(email) {
+  function criarContaEConvidar(email, senhaProvisoria) {
     var secName = "invite-" + Date.now() + "-" + Math.floor(Math.random() * 1e6);
     var secApp = firebase.initializeApp(firebaseConfig, secName);
-    var senhaTemp = "Tmp#" + Math.random().toString(36).slice(2, 10) + Date.now();
-    return secApp.auth().createUserWithEmailAndPassword(email, senhaTemp)
+    var senha = senhaProvisoria || ("Tmp#" + Math.random().toString(36).slice(2, 10) + Date.now());
+    return secApp.auth().createUserWithEmailAndPassword(email, senha)
       .then(function (cred) {
+        // Se o admin já definiu uma senha provisória, a conta nasce com ela — não faz sentido
+        // mandar e-mail de redefinição por cima (e o e-mail pode nem estar sendo entregue).
+        if (senhaProvisoria) return cred.user.uid;
         return secApp.auth().sendPasswordResetEmail(email).then(function () { return cred.user.uid; });
       })
       .catch(function (err) {
@@ -3010,8 +3017,9 @@
         uMsg.textContent = "Não deu pra salvar (" + (err && err.code ? err.code : "erro") + ").";
       });
     } else {
-      uMsg.textContent = "Criando acesso e enviando e-mail de convite...";
-      criarContaEConvidar(email).then(function (authUid) {
+      var senhaProvisoria = uSenhaProvisoria ? uSenhaProvisoria.value.trim() : "";
+      uMsg.textContent = senhaProvisoria ? "Criando acesso..." : "Criando acesso e enviando e-mail de convite...";
+      criarContaEConvidar(email, senhaProvisoria || null).then(function (authUid) {
         payload.criadoPor = autor;
         payload.createdAt = now;
         payload.validoAte = validadePlus12Meses();
@@ -3020,9 +3028,13 @@
           uSubmit.disabled = false;
           resetUserForm();
           uMsg.textContent = "";
-          showBanner(authUid === "ja-existe"
-            ? "Usuário cadastrado. Já existia uma conta de login com esse e-mail — a pessoa usa a senha que já tinha (ou \"Esqueci minha senha\" na tela de entrada)."
-            : "Usuário cadastrado — enviamos um e-mail pra " + email + " com o link pra criar a senha e acessar. Acesso válido até " + formatValidadeBr(payload.validoAte) + ".");
+          if (authUid === "ja-existe") {
+            showBanner("Usuário cadastrado. Já existia uma conta de login com esse e-mail — a pessoa usa a senha que já tinha (ou \"Esqueci minha senha\" na tela de entrada).");
+          } else if (senhaProvisoria) {
+            showBanner("Usuário cadastrado — login: " + email + " / senha: " + senhaProvisoria + ". Passa direto pra pessoa (WhatsApp, por ex.). Acesso válido até " + formatValidadeBr(payload.validoAte) + ".");
+          } else {
+            showBanner("Usuário cadastrado — enviamos um e-mail pra " + email + " com o link pra criar a senha e acessar. Acesso válido até " + formatValidadeBr(payload.validoAte) + ".");
+          }
         });
       }).catch(function (err) {
         uSubmit.disabled = false;
